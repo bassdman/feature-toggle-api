@@ -4,7 +4,7 @@
   "description": "Gives you advanced feature-toggle",
   "main": "dist/feature-toggle-api.min.js",
   "scripts": { 
-    "pretest": "gulp build",
+    "pretest": "gulp build_min",
     "test": "jasmine" 
   },
   "author": "Manuel Gelsen",

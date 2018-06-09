@@ -41,9 +41,6 @@ const getVisibility = function (visibilityFn, functionname, data, name, variant)
     return logAndReturn(false, `The ${functionname} returns ${calculatedVisibility}. => Please return true or false. This result (and all non-boolean results) will return false.`);
 }
 
-const visibilities = {
-
-};
 const getKey = function (name, variant) {
     var _name = name.toLowerCase();
     if (typeof variant == 'string') {
@@ -58,6 +55,9 @@ const getVisibilityFn = function (variantOrFn, fn) {
 
 
 module.exports = function () {
+    const visibilities = {
+
+    };
 
     return {
         name: 'feature-toggle-api',
@@ -123,7 +123,7 @@ module.exports = function () {
                 var defaultFn = visibilities['_default'];
                 var defaultFnExists = visibilities['_default'] != null;
                 var defaultFnResult = getVisibility(defaultFn, 'defaultVisibility', data, name, variant);
-
+                
                 if (!requiredFnExists)
                     log("No requiredVisibility rule specified for this feature.");
                 else if (requiredFnExists && requiredFnResult === true)
