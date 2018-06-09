@@ -1,10 +1,10 @@
 # vue-feature-toggle
 
-> Enables advanced feature-toggle with vue
+> Gives you advanced feature-toggle for any Framework
 
-[![npm version](https://img.shields.io/npm/v/-feature-toggle-api.svg)](https://www.npmjs.com/package/vue-feature-toggle)
-[![npm downloads](https://img.shields.io/npm/dt/feature-toggle-api.svg)](https://www.npmjs.com/package/vue-feature-toggle)
-[![npm downloads](https://img.shields.io/github/license/mashape/apistatus.svg)](https://www.npmjs.com/package/vue-feature-toggle)
+[![npm version](https://img.shields.io/npm/v/-feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
+[![npm downloads](https://img.shields.io/npm/dt/feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
+[![npm downloads](https://img.shields.io/github/license/mashape/apistatus.svg)](https://www.npmjs.com/package/feature-toggle-api)
 ## Install
 
 ``` shell
@@ -13,11 +13,11 @@
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
-Your shop is written in vue. Anywhere you have a vue-template like this:
+This is the HTML-part of the template:
 ``` html
 <content-area>
     <!-- Show important debugging information for testmode -->
-    <testmode-nav v-if="testmode"></testmode-nav>
+    <testmode-nav onload="showIf(testmode)"></testmode-nav>
 
     <!-- That's the old one, in a few days the new one, commented out here will be released 
         <left-nav-new></left-nav-new>
@@ -25,9 +25,9 @@ Your shop is written in vue. Anywhere you have a vue-template like this:
     <left-nav></left-nav>
 
     <!-- Every shop has a slider with amazing foodinfo on the startpage-->
-    <startpage-slider-de ref="food/bratwurst" v-if="shop == 'de'"></startpage-slider-de>
-    <startpage-slider-en ref="food/fishnchips" v-if="shop == 'en'"></startpage-slider-en>
-    <startpage-slider-fr ref="food/croissant" v-if="shop == 'fr'"></startpage-slider-fr>
+    <div id="startpage-slider-de" ref="food/bratwurst" onload="showIf(shop=='de')">...</div>
+    <div id="startpage-slider-en" ref="food/fishnchips" onload="showIf(shop=='en')">...</div>
+    <div id="startpage-slider-fr" ref="food/croissant" onload="showIf(shop=='fr')">...</div>
 
     <footer-new></footer-new>
     <!-- 
@@ -43,7 +43,7 @@ That's not good.
 Feature-toggle. All View-Logic is placed in one place. This can be a config file, a webservice or a tool with a User Interface.a
 When you want to change a visibility rule, for example "Show feature XYZ also in the french shop", you just have to update the config or add this info in an UI. And no developer is needed for it.
 
-<a href="https://martinfowler.com/articles/feature-toggles.html">Read the article from Martin Fowler about feature toggle for a more understanding.</a>
+<a href="https://martinfowler.com/articles/feature-toggles.html">Read the article from Martin Fowler about feature toggle for a better understanding.</a>
 
 ## The Usage
 Look in the example folder for working examples.

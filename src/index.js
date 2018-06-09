@@ -1,4 +1,15 @@
 let _showLogs = false;
+
+function initVisibilities(visibilities = {})
+{
+    const returnVisibilities = {};
+    Object.keys(visibilities).forEach(key => {
+        returnVisibilities[key] = parseToFn(visibilities[key]);
+    });
+
+    return returnVisibilities
+}
+
 const log = function (message) {
     if (_showLogs === true) {
         var hasBoldTag = message.indexOf('<b>') != -1;
@@ -20,6 +31,13 @@ const log = function (message) {
         else
             console.log(message);
     }
+}
+
+const parseToFn = function(fnOrBool){
+    if(typeof fnOrBool == 'boolean')
+        return function(){return fnOrBool};
+    
+    return fnOrBool;
 }
 
 const logAndReturn = function (returnValue, message) {
@@ -49,15 +67,10 @@ const getKey = function (name, variant) {
 
     return _name;
 }
-const getVisibilityFn = function (variantOrFn, fn) {
-    return fn == null ? variantOrFn : fn;
-}
 
 
-module.exports = function () {
-    const visibilities = {
-
-    };
+module.exports = function featureToggleApi(rawVisibilities) {
+    const visibilities = initVisibilities(rawVisibilities);
 
     return {
         name: 'feature-toggle-api',
@@ -84,20 +97,20 @@ module.exports = function () {
                 throw new Error('feature.visibility(): 3nd parameter must be a function when the 2nd parameter is the variant name');
 
             var key = getKey(name, variantOrFn);
-            var visibilityFn = getVisibilityFn(variantOrFn, fn);
+            var visibilityFn = parseToFn(fn == undefined ? variantOrFn : fn);
             visibilities[key] = visibilityFn;
         },
         requiredVisibility: function(fn) {
             if (typeof fn != "function")
                 throw new Error('feature.requiredVisibility(): 1st parameter must be a function, but is ' + typeof fn);
 
-            visibilities['_required'] = fn;
+            visibilities['_required'] = parseToFn(fn);
         },
         defaultVisibility: function(fn) {
             if (typeof fn != "function")
                 throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + typeof fn);
 
-            visibilities['_default'] = fn;
+            visibilities['_default'] = parseToFn(fn);
         },
         methods: {
             _isVisible: function(name, variant, data) {
