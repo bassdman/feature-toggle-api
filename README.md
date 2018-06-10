@@ -261,6 +261,37 @@ var isVisible_data = feature.isVisible('feature2','new','grumpfl');
 var isVisible_data_onlyname = feature.isVisible('feature2',null,'grumpfl');
 ```
 
+#### Listeners
+If you want to 'watch' every initialisation of a visibility rule, you can append a watcher on it.
+```javascript
+    var api = new featureToggleApi({feature: true});
+    api.visibility("feature2","variant",true);
+    
+    //Calling the listener will also regard already added visibility rules
+    //The result: 
+    //true, 'feature', undefined
+    //true, 'feature2, 'variant'
+    api.on('visibilityrule', function (result,name,variant) {
+        console.log(result+","+name+","+variant);
+    })
+```
+Attention: If the visibilityrule uses the dataparameter, the result is wrong (because the listener doesn't know which data it should use).
+Therefore modify the rule a little bit:
+```javascript
+    var api = new featureToggleApi({feature: true});
+    api.visibility("feature2","variant",true);
+    
+    //Imagine the visibilityrule function(data,name,variant){return data == 'grumpfelfeature'}
+    //The result: 
+    //true, 'feature', undefined
+    //false, 'feature2, 'variant'
+    api.on('visibilityrule', function (wrongResult,name,variant,visibilityrule) {
+        const data = "grumpfel"+name;
+        const result = visibilityrule(data,name,variant);
+        console.log(result+","+name+","+variant);
+    })
+```
+
 #### ShowLogs
 Imagine this following html-snippet:
 ```javascript

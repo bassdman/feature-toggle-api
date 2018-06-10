@@ -67,18 +67,41 @@ const getKey = function (name, variant) {
 
     return _name;
 }
-
+const parseKey = function (key) {
+    const parts = key.split('#');
+    return {
+        name: parts[0],
+        variant: parts.length > 1 ? parts[1] : undefined
+    }
+}
 
 export default function featuretoggleapi(rawVisibilities) {
     const visibilities = initVisibilities(rawVisibilities);
+    const listeners = [];
 
     return {
         name: 'feature-toggle-api',
-        logAndReturn: function(returnValue, fn) {
+        logAndReturn: function(returnValue, fn,name,variant,data) {          
             return logAndReturn(returnValue, fn)
         },
         log: function(message) {
             log(message);
+        },
+        on : function(eventtype,fn,config){
+            const validEventTypes = ['visibilityrule'];
+            if(validEventTypes.indexOf(eventtype.toLowerCase()) == -1)
+                throw new Error('Eventtype "' + eventtype.toLowerCase() + '" does not exist. Only "visibilityrule" is valid');
+
+            listeners.push(fn);
+
+            if(config != undefined && config.ignorePreviousRules)
+                return;
+
+            Object.keys(visibilities).forEach(key => {
+                const nameAndVariant = parseKey(key);
+                const rule= visibilities[key];
+                fn(rule(nameAndVariant.name,nameAndVariant.variant),nameAndVariant.name,nameAndVariant.variant, rule);
+            });
         },
         showLogs: function(showLogs, name, variant) {
             _showLogs = showLogs == undefined ? true : showLogs;
@@ -97,8 +120,14 @@ export default function featuretoggleapi(rawVisibilities) {
                 throw new Error('feature.visibility(): 3nd parameter must be a function when the 2nd parameter is the variant name');
 
             var key = getKey(name, variantOrFn);
+            const variant = typeof variantOrFn == 'string' ? variantOrFn : undefined;
             var visibilityFn = parseToFn(fn == undefined ? variantOrFn : fn);
             visibilities[key] = visibilityFn;
+
+            listeners.forEach(listener => {
+                const key = getKey(name,variant);
+                listener(visibilityFn(name,variant),name,variant,visibilityFn);
+            });
         },
         requiredVisibility: function(fn) {
             if (typeof fn != "function")
@@ -161,7 +190,7 @@ export default function featuretoggleapi(rawVisibilities) {
                 if (requiredFnExists)
                     return logAndReturn(true, `Only the requiredVisibility rule was found. This returned true. => This feature will be visible.`);
 
-                return logAndReturn(false, 'No rules were found. This feature will be hidden.');
+                return logAndReturn(false, 'No rules were found. This feature will be hidden.',name, variant, data);
             }
         }
     }
