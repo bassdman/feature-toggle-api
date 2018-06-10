@@ -1,4 +1,4 @@
-# vue-feature-toggle
+# feature-toggle-api
 
 > Gives you advanced feature-toggle for any Framework
 
