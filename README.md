@@ -2,7 +2,7 @@
 
 > Gives you advanced feature-toggle for any Framework
 
-[![npm version](https://img.shields.io/npm/v/-feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
+[![npm version](https://img.shields.io/npm/v/feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
 [![npm downloads](https://img.shields.io/npm/dt/feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
 [![npm downloads](https://img.shields.io/github/license/mashape/apistatus.svg)](https://www.npmjs.com/package/feature-toggle-api)
 ## Install
