@@ -1,6 +1,6 @@
 {
   "name": "feature-toggle-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Gives you advanced feature-toggle for any Framework",
   "main": "dist/feature-toggle-api.min.js",
   "scripts": { 
@@ -9,6 +9,13 @@
   },
   "author": "Manuel Gelsen",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bassdman/feature-toggle-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bassdman/feature-toggle-api.git/issues"
+  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
