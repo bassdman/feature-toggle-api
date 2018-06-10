@@ -69,7 +69,7 @@ const getKey = function (name, variant) {
 }
 
 
-module.exports = function featureToggleApi(rawVisibilities) {
+export default function featuretoggleapi(rawVisibilities) {
     const visibilities = initVisibilities(rawVisibilities);
 
     return {

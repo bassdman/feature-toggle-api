@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basic Feature-Toggle-API-Test</title>
+    <script>/*Quickhack to handle es-modules in Browser*/ var exports = {};</script>
+    <script src="../dist/feature-toggle-api.min.js"></script>
+</head>
+<body>
+    <div class="feature1" style="border:1px solid lightgray;padding:1em;margin:1em;">This is text from feature1</div>
+    <div class="feature2" style="border:1px solid lightgray;padding:1em;margin:1em;">This is text from feature2</div>
+    <script>
+        var api = featuretoggleapi({
+            feature1: true
+        });
+        var feature1Visible = api.isVisible('feature1');
+        var feature2Visible = api.isVisible('feature2');
+        
+        //here we could also use jquery,...
+        if(!feature1Visible) document.querySelector(".feature1").style.display = 'none';
+        if(!feature2Visible) document.querySelector(".feature2").style.display = 'none';
+    </script>
+</body>
+</html>

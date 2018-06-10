@@ -1,4 +1,4 @@
-var featureToggleApi = require('../../dist/feature-toggle-api.min.js');
+const featureToggleApi = require('../../dist/feature-toggle-api.min.js').default;
 
 describe("Initialisation / Basic Tests", function () {
     it("should return a function", function () {

@@ -1,10 +1,10 @@
 {
   "name": "feature-toggle-api",
   "version": "1.0.0",
-  "description": "Gives you advanced feature-toggle",
+  "description": "Gives you advanced feature-toggle for any Framework",
   "main": "dist/feature-toggle-api.min.js",
   "scripts": { 
-    "pretest": "gulp build_min",
+    "pretest": "gulp build",
     "test": "jasmine" 
   },
   "author": "Manuel Gelsen",

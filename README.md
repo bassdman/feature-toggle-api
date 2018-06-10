@@ -13,7 +13,7 @@
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
-This is the HTML-part of the template:
+One part uses a html-template that looks like this:
 ``` html
 <content-area>
     <!-- Show important debugging information for testmode -->
@@ -46,75 +46,98 @@ When you want to change a visibility rule, for example "Show feature XYZ also in
 <a href="https://martinfowler.com/articles/feature-toggles.html">Read the article from Martin Fowler about feature toggle for a better understanding.</a>
 
 ## The Usage
-Look in the example folder for working examples.
+Look in the example folder for working examples in HTML Templates.
 
 ### Initialisation
-Create a vue project. For example with the vue-cli.
+Create a new project, type
 ``` shell
-    npm install -g vue-cli
-    vue init browserify vue-feature-toggle-example
-    cd vue-feature-toggle-example
-    npm install
+    npm install feature-toggle-api --save
 ```
-Now install the vue-feature-toggle component. 
-``` shell
-    npm install vue-feature-toggle --save
-```
+You want to include it as a scripttag? Here's a sample HTML-Template 
 Replace the index.html - file with the following:
 ``` html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <title>vue-feature-example</title>
+    <meta charset="UTF-8">
+    <title>Basic Feature-Toggle-API-Test</title>
+    <script>/*Quickhack to handle es-modules in Browser*/ var exports = {};</script>
+    <script src="../dist/feature-toggle-api.min.js"></script>
 </head>
-
 <body>
-  <div id="app">
-        <!-- The name property is required -->
-        <feature name="feature1">This is "Feature1"</feature>
+    <div class="feature1">This is text from feature1</div>
+    <div class="feature2">This is text from feature2</div>
+    <script>
+        var api = featuretoggleapi({
+            feature1: true
+        });
+        var feature1Visible = api.isVisible('feature1');
+        var feature2Visible = api.isVisible('feature2');
         
-        <!-- The variant property is optional and can be any string -->
-        <feature name="feature2">This is "Feature2"</feature>
-        <feature name="feature2" variant="new">This is "Feature2" with variant "new"</feature>
-        <feature name="feature2" variant="old">This "Feature2" with variant "old"</feature>
-        <feature name="feature2" variant="grumpfel">This "Feature2" with variant "grumpfel"</feature>
-        
-        <feature name="feature3" variant="old" data="grumpfel">This "Feature3" with variant "old" has some Data.</feature>
-        <feature name="feature3" variant="new" :data="{'text':'grumpfel'}">This "Feature3" with variant "old" has some Data. (watch the : before the data-attribute. Otherwise you'll get this as a string...)</feature>
-  </div>
-  <script src="dist/build.js"></script>
+        //here we could also use jquery or any other library,... The api has done its job.
+        if(!feature1Visible) document.querySelector(".feature1").style.display = 'none';
+        if(!feature2Visible) document.querySelector(".feature2").style.display = 'none';
+    </script>
 </body>
 </html>
 ```
-Replace the src/main.js file with the following: 
+You have a node-module? Nothing is easier then that:
 ``` javascript
-var Vue = require('vue');
-var feature = require('vue-feature-toggle');
+var featuretoggleapi = require('feature-toggle-api').default;
+var api = featuretoggleapi({
+    feature1: true
+});
+var feature1Visible = api.isVisible('feature1');
+var feature2Visible = api.isVisible('feature2');
 
-//Feature1 will always be shown
-feature.visibility('feature1',function () {
-    return true;
+//now you can do sth with the visibilities
+```
+
+### Initialisation
+Initialisation is very simple
+```javascript
+//This api has already initialized some visiblity rules:
+var api = new featuretoggleapi({
+    feature1: true, //feature1 will be shown
+    feature2: false, //feature2 won't be shown,
+    // a rule can also be a function. important: it must return a boolean value; feature 3 would be shown
+    feature3: function(data, name, variant){return true;}, 
+    feature4: true,
+    "feature4:new": false //feature 4 will be shown - but if variant is new, it won't be. 
 });
 
-//write down the other visibility-rules here    
-
-var vue = new Vue({
-    el: '#app',
-    components: { 'feature': feature }
-})
-
-//IMPORTANT: Don't write your rules after the new Vue()-declaration - they won't work here....
+//You could also write it like this:
+var api = new featuretoggleapi();
+api.visibility('feature1',true);
+api.visibility('feature2',false);
+api.visibility('feature3',function(data, name, variant){return true});
+api.visibility('feature4',true);
+api.visibility('feature4','new',false);
 ```
-### Features
-For the next examples we will always use the HTML from above. Just insert the visibility rules under the other rule
 
+### Features
+For the next examples we will imagine, the properties are mapped to the visibility rules.
+```html
+<div id="app">
+    <!-- Just imagine, the properties are matched to the visibility rules -->
+    <feature name="feature1">This is "Feature1"</feature>
+    <feature name="feature2">This is "Feature2"</feature>
+    <feature name="feature2" variant="new">This is "Feature2" with variant "new"</feature>
+    <feature name="feature2" variant="old">This "Feature2" with variant "old"</feature>
+    <feature name="feature2" variant="grumpfel">This "Feature2" with variant "grumpfel"</feature>
+    
+    <feature name="feature3" variant="old" data="grumpfel">This "Feature3" with variant "old" has some Data.</feature>
+    <feature name="feature3" variant="new" data="{'text':'grumpfel'}">This "Feature3" with variant "old" has some Data.</feature>
+</div>
+```
 #### Basic visibility
 ```javascript
 // shows Feature1
 //Feature2 is not configured, so it will be hidden
-feature.visibility('feature1',function () {
+api.visibility('feature1',true);
+
+//Remember: you can also wrap it in functions - but the example above is better to read
+api.visibility('feature1',function (data, name, variant) {
         //here would be some more complex logic, in this example we keep it simple
         return true;
 });
@@ -122,37 +145,33 @@ feature.visibility('feature1',function () {
 ```javascript
 /* 
     shows all features with name feature2, in this case: 
-    <feature name="feature2"/>
-    <feature name="feature2" variant="new"/>
-    <feature name="feature2" variant="old"/>
-    <feature name="feature2" variant="grumpfel"/>
+    api.isVisible('feature1') -> return false
+    api.isVisible('feature2') -> return true
+    api.isVisible('feature2','new') -> return true
+    api.isVisible('feature2','old') -> return true
+    api.isVisible('feature2','grumpfel') -> return true
+    
  */
-feature.visibility('feature2', function () {
-        return true;
-});
+api.visibility('feature2', true);
 
 /*
     This overwrites the rule above for "feature2", variant "new"    
-    <feature name="feature2"/> -> shown
-    <feature name="feature2" variant="new"/> -> hidden
-    <feature name="feature2" variant="old"/> -> shown
-    <feature name="feature2" variant="grumpfel"/> -> shown
+    api.isVisible('feature1') -> return false
+    api.isVisible('feature2') -> return true - because of rule above 
+    api.isVisible('feature2','new') -> return false
+    api.isVisible('feature2','old') -> return true
+    api.isVisible('feature2','grumpfel') -> return true
 */
-feature.visibility('feature2','new', function () {
-        return false;
-});
+api.visibility('feature2','new', false);
 ```
 ```javascript
 /*
-You can pass data via the data-attribute. Corresp. HTML-Tag: <feature name="feature3" :data="grumpfel"/>
+    feature.isVisible('feature3','new','grumpfel'); //returns true
+    feature.isVisible('feature3','new','grumpfelbu'); //returns false
 */
-feature.visibility('feature3','new', function (data,name,variant) {
+api.visibility('feature3','new', function (data,name,variant) {
+     //data could also be an object or whatever you want
       return data == "grumpfel";
-});
-
-//Write a : before the data-tag to parse the content in the data-attribute <feature name="feature3" :data="{'text':'grumpfel'"/> Otherwise the data is returned as a string.
-feature.visibility('feature3','new', function (data,name,variant) {
-      return data.text == "grumpfel";
 });
 ```
 #### Default Visibility
@@ -167,11 +186,18 @@ feature.visibility('feature2', 'new', function(data,name,variant){
 });
 /*
     "Feature2", variant "new" is overwritten, all other features have the defaultVisibility
-    <feature name="feature2"/> -> shown
-    <feature name="feature2" variant="new"/> -> hidden
-    <feature name="feature2" variant="old"/> -> shown
-    <feature name="feature2" variant="grumpfel"/> -> shown
+    api.isVisible('feature1') -> return true
+    api.isVisible('feature2') -> return true
+    api.isVisible('feature2','new') -> return false
+    api.isVisible('feature2','old') -> return true
+    api.isVisible('feature2','grumpfel') -> return true
 */
+```
+You already want to initialize it in the constructor? No Problem.
+```javascript
+    var api = new featuretoggleapi({
+    _default: true, //default visibility always returns true; again: this could also be a function
+ });
 ```
 
 #### Required Visibility
@@ -203,54 +229,45 @@ feature.visibility('feature3',function(data,name,variant){
 });
 
 /*
-    <feature name="feature2"/> -> shown
-    <feature name="feature2" variant="new"/> -> hidden
-    <feature name="feature2" variant="old"/> -> shown
-    <feature name="feature2" variant="grumpfel"/> -> shown
-    
-     <feature name="feature3" variant="old"/> -> hidden
-    <feature name="feature3" variant="new"/> -> hidden
+    api.isVisible('feature2') -> return true
+    api.isVisible('feature2','new') -> return false
+    api.isVisible('feature2','old') -> return true
+    api.isVisible('feature2','grumpfel') -> return true
+
+    api.isVisible('feature3','new') -> return false
+    api.isVisible('feature3','old') -> return false
 */
 ```
-
-#### Visible
-Sometimes you want to know via javascript if a feature is visible or not. Here's the code for it:
+You already want to initialize it in the constructor? No Problem.
 ```javascript
-// prooves if tag <feature name="feature2"/> is visible
+    var api = new featuretoggleapi({
+    _required: true, //default visibility always returns true; again: this could also be a function
+ });
+```
+
+#### Function isVisible
+The api for this function:
+```javascript
+// prooves if feature2 is visible
 var isVisible = feature.isVisible('feature2');
 
-// prooves if tag <feature name="feature2" variant="new"/> is visible
+// prooves if tag feature "feature2", variant "new" is visible
 var isVisible_new = feature.isVisible('feature2','new');
 
-// prooves if tag <feature name="feature2" variant="new" data="grumpfl"/> is visible
+// prooves if tag feature "feature2", variant "new" with data "grumpfl" is visible
 var isVisible_data = feature.isVisible('feature2','new','grumpfl');
 
-// prooves if tag <feature name="feature2" data="grumpfl"/> is visible
+// prooves if tag feature "feature2" with data "grumpfl" is visible
 var isVisible_data_onlyname = feature.isVisible('feature2',null,'grumpfl');
-```
-
-#### Container Tag
-Normally a feature has a div-element as root-element.
-```html
-    <feature name="anAmazingFeature">an amazing feature</feature>
-    will be rendered to (if visible):
-    <div>an amazing feature</div>
-```
-But unfortunately sometimes div-elements are already styled by legacy-css-classes.
-To prevent this, you can define the root-element.
-```html
-    <feature name="anAmazingFeature" tag="span">an amazing feature</feature>
-    will be rendered to (if visible):
-    <span>an amazing feature</span>
 ```
 
 #### ShowLogs
 Imagine this following html-snippet:
-```html
-    <!-- Why is this ******* feature hidden? I checked the visibilityrule. It should be visible... -->
-    <feature name="anAmazingFeature">This feature should be shown</feature>
+```javascript
+    /* Why is this ******* feature hidden? I checked the visibilityrule. It should be visible... */
+    api.isVisible('anamazingFeature') //returns false, but should return true... wtf???
 ```
-All developers of the world agree with you, debugging the reason, why a feature is visible or not is horrible. But don't worry, this time is over. We have a perfect solution for it. And it's just one line of code.
+All developers of the world agree with you, debugging sth like this is horrible. But don't worry, we have a perfect solution for it. And it's just one line of code.
 ```javascript
 feature.showLogs(); //or feature.showLogs(true);
 ```
@@ -271,43 +288,9 @@ With this you don't have to waste your time with debugging the visibility state.
 #### Log
 Log a custom message, when showLogs() == true.
 ```javascript
-feature.log("Here's my custom message");
+api.log("Here's my custom message");
 ```
 
-#### Noscript
-You work in a company and your customers have disabled javascript? Well, that makes life harder but we can still use it. We can provide at least a basic functionality with pure css.
-Just look at the modified index.html file.
-``` html
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <title>vue-feature-example</title>
-   <style type="text/css">
-   /*Hides all features by default. When javascript is enabled, this attribute is overwritten*/
-    feature{
-      display:none;
-    }
-
-    /*Shows all features with noscript attribute*/
-    feature[noscript="noscript"], feature[noscript="true"]{
-      display:block;
-    }
-    </style>
-</head>
-
-<body>
-  <div id="app">
-        <feature name="feature1">This is hidden without javascript</feature>
-        
-        <feature name="feature2" noscript="noscript">This is shown without javascript.</feature>
-        <feature name="feature2" variant="new" noscript="true">This is shown without javascript.</feature>
-  </div>
-  <script src="dist/build.js"></script>
-</body>
-</html>
-```
 ## License	
 <a href="https://opensource.org/licenses/MIT">MIT</a>.
-Copyright (c) 2017 Manuel Gelsen
+Copyright (c) 2018 Manuel Gelsen
