@@ -83,13 +83,13 @@ describe("Basic visibility of features", function () {
     });
 
     it("should return false if data returns false", function () {
-        api.visibility('featureFalse', 'variant', function (data, name, variant) { return data == 'succeed' });
+        api.visibility('featureFalse', 'variant', function (name, variant, data) { return data == 'succeed' });
         const visibility = api.isVisible('featureFalse', 'variant', 'fail');
         expect(visibility).toBe(false);
     });
 
     it("should return false if data returns true", function () {
-        api.visibility('featureFalse', 'variant', function (data, name, variant) { return data == 'succeed' });
+        api.visibility('featureFalse', 'variant', function (name, variant, data) { return data == 'succeed' });
         const visibility = api.isVisible('featureFalse', 'variant', 'succeed');
         expect(visibility).toBe(true);
     });
@@ -97,7 +97,7 @@ describe("Basic visibility of features", function () {
 
 describe("Default Visibility", function () {
     const api = new featureToggleApi();
-    api.defaultVisibility((data, name, variant) => {
+    api.defaultVisibility((name, variant, data) => {
         return true;
     });
     it("should return true if feature does not exist", function () {
@@ -125,7 +125,7 @@ describe("Default Visibility", function () {
 
 describe("Required Visibility", function () {
     const api = new featureToggleApi();
-    api.requiredVisibility((data, name, variant) => {
+    api.requiredVisibility((name, variant, data) => {
         return variant == "valid";
     });
 
@@ -154,7 +154,7 @@ describe("Required Visibility", function () {
     });
 
     it("should return false if defaultVisibility returns true", function () {
-        api.defaultVisibility((data, name, variant) => {
+        api.defaultVisibility((name, variant, data) => {
             return true;
         });
         const visibility = api.isVisible('featureTrue', 'invalid');
@@ -213,37 +213,17 @@ describe("Listener", function () {
         expect(JSON.stringify(listenedEvents)).toBe(JSON.stringify(['feature,undefined,true','feature2,variant,true']));
     });
 
-    it("should pass parameters in order result,name,variant,visibilityruleFn", function () {
-        var listenedEvents = [];
-        var localapi2 = new featureToggleApi({feature: true});
-        localapi2.on('visibilityrule', function (result,name,variant,fn) {
-            listenedEvents.push(result);
-            listenedEvents.push(name);
-            listenedEvents.push(variant)
-            listenedEvents.push(fn);
+    it("hould pass parameters in order result,name,variant,data", function () {
+        var api = new featureToggleApi();
+        api.visibility('feature', 'variant','gruempfel',function(name,variant,data){
+            return (data + name + variant) == 'gruempfelfeaturevariant';
         });
-        expect(listenedEvents[0]).toBe(true);
-        expect(listenedEvents[1]).toBe("feature");
-        expect(listenedEvents[2]).toBe(undefined);
-        expect(typeof listenedEvents[3]).toBe('function');
-    });
 
-    it("should work with custom data", function () {
-        var api = new featureToggleApi({feature: function(data,name,variant){return data == 'grumpfelfeature'}});
-        
-        //The result: 
-        //true, 'feature', undefined
-        //false, 'feature2, 'variant'
-        api.on('visibilityrule', function (wrongResult,name,variant,visibilityrule) {
-            const data = "grumpfel"+name;
-            const result = visibilityrule(data,name,variant);
+        api.on('visibilityrule', function (result,name,variant,data) {
             expect(result).toBe(true);
             expect(name).toBe("feature");
-            expect(variant).toBe(undefined);
+            expect(variant).toBe("variant");
+            expect(data).toBe("gruempfel");
         })
-       // expect(listenedEvents[0]).toBe(true);
-      //  expect(listenedEvents[1]).toBe("feature");
-      //  expect(listenedEvents[2]).toBe(undefined);
-      //  expect(typeof listenedEvents[3]).toBe('function');
     });
 });

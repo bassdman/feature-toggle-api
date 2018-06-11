@@ -7,7 +7,7 @@ function initVisibilities(visibilities = {})
         returnVisibilities[key] = parseToFn(visibilities[key]);
     });
 
-    return returnVisibilities
+    return returnVisibilities;
 }
 
 const log = function (message) {
@@ -46,11 +46,11 @@ const logAndReturn = function (returnValue, message) {
     return returnValue;
 }
 
-const getVisibility = function (visibilityFn, functionname, data, name, variant) {
+const getVisibility = function (visibilityFn, functionname, name, variant, data) {
     if (visibilityFn == null)
         return undefined;
 
-    var calculatedVisibility = visibilityFn(data, name, variant);
+    var calculatedVisibility = visibilityFn(name, variant, data);
 
     if (typeof calculatedVisibility == 'boolean') {
         return calculatedVisibility;
@@ -67,21 +67,68 @@ const getKey = function (name, variant) {
 
     return _name;
 }
-const parseKey = function (key) {
+function getRule (key, datas) {
     const parts = key.split('#');
     return {
         name: parts[0],
-        variant: parts.length > 1 ? parts[1] : undefined
+        variant: parts.length > 1 ? parts[1] : undefined,
+        data: datas[key],
+    }
+}
+
+/*
+    the following calls are possible:
+    visibility(name,result);
+    visibility(name,variant,result);
+    visibility(name,variant,data,result);
+
+    =>
+    param1: name
+    param2: result || variant
+    param3: result || data
+    param4: result
+*/
+function visibilityFnParams(param1, param2, param3, param4){
+    //name must always be set
+    if (param1 == undefined)
+        throw new Error('feature.visibility(): 1st parameter name must be defined');
+    
+    if (arguments.length == 1)
+        throw new Error('feature.visibility(): 2nd parameter name must be a boolean or function, but is empty');
+
+    let name = param1, variant=null, data=null, result=null;
+    if(param3 == undefined && param4 == undefined)
+    {
+        result = param2;
+    }
+    else if(param4 == undefined)
+    {
+        variant = param2;
+        result= param3;
+    }
+    else
+    {
+        variant = param2;
+        data = param3;
+        result = param4;
+    }
+
+    return {
+        name,
+        variant,
+        data,
+        result
     }
 }
 
 export default function featuretoggleapi(rawVisibilities) {
     const visibilities = initVisibilities(rawVisibilities);
+    const datas = {};
     const listeners = [];
 
     return {
         name: 'feature-toggle-api',
-        logAndReturn: function(returnValue, fn,name,variant,data) {          
+        logAndReturn: function(returnValue, fn) {          
             return logAndReturn(returnValue, fn)
         },
         log: function(message) {
@@ -98,9 +145,9 @@ export default function featuretoggleapi(rawVisibilities) {
                 return;
 
             Object.keys(visibilities).forEach(key => {
-                const nameAndVariant = parseKey(key);
+                const ruledata = getRule(key, datas);
                 const rule= visibilities[key];
-                fn(rule(nameAndVariant.name,nameAndVariant.variant),nameAndVariant.name,nameAndVariant.variant, rule);
+                fn(rule(ruledata.name,ruledata.variant,ruledata.data),ruledata.name,ruledata.variant, ruledata.data);
             });
         },
         showLogs: function(showLogs, name, variant) {
@@ -109,24 +156,21 @@ export default function featuretoggleapi(rawVisibilities) {
         isVisible: function(name, variant, data) {
             return this.methods._isVisible(name, variant, data);
         },
-        visibility: function(name, variantOrFn, fn) {
-            if (name == undefined)
-                throw new Error('feature.visibility(): 1st parameter name must be defined');
-
-            if (variantOrFn == undefined)
-                throw new Error('feature.visibility(): 2nd parameter must either be the variant name or a function');
-
-            if (variantOrFn !== undefined && fn == undefined && typeof variantOrFn == 'string')
-                throw new Error('feature.visibility(): 3nd parameter must be a function when the 2nd parameter is the variant name');
-
-            var key = getKey(name, variantOrFn);
-            const variant = typeof variantOrFn == 'string' ? variantOrFn : undefined;
-            var visibilityFn = parseToFn(fn == undefined ? variantOrFn : fn);
+        /*
+            the following function calls are possible:
+            visibility(name,result);
+            visibility(name,variant,result);
+            visibility(name,variant,data,result);
+        */
+        visibility: function(param1, param2, param3,param4) {
+            const params = visibilityFnParams(param1, param2, param3,param4)
+            var key = getKey(params.name, params.variant);
+            var visibilityFn = parseToFn(params.result);
             visibilities[key] = visibilityFn;
+            datas[key] = params.data;
 
             listeners.forEach(listener => {
-                const key = getKey(name,variant);
-                listener(visibilityFn(name,variant),name,variant,visibilityFn);
+                listener(visibilityFn(params.name,params.variant,params.data),params.name,params.variant,params.data);
             });
         },
         requiredVisibility: function(fn) {
@@ -149,22 +193,22 @@ export default function featuretoggleapi(rawVisibilities) {
 
                 var requiredFn = visibilities['_required'];
                 var requiredFnExists = visibilities['_required'] != null;
-                var requiredFnResult = getVisibility(requiredFn, 'requiredVisibility', data, name, variant);
+                var requiredFnResult = getVisibility(requiredFn, 'requiredVisibility', name, variant, data);
 
                 var visibilityFnKey = getKey(name, variant);
                 var visibilityFn = visibilities[visibilityFnKey];
                 var visibilityFnExists = visibilities[visibilityFnKey] != null;
-                var visibilityFnResult = getVisibility(visibilityFn, 'visibility function', data, name, variant);
+                var visibilityFnResult = getVisibility(visibilityFn, 'visibility function', name, variant, data);
 
                 var variantExists = variant != null;
                 var visibilityOnlyNameFnKey = getKey(name, null);
                 var visibilityOnlyNameFn = visibilities[visibilityOnlyNameFnKey];
                 var visibilityOnlyNameFnExists = visibilities[visibilityOnlyNameFnKey] != null;
-                var visibilityOnlyNameFnResult = getVisibility(visibilityOnlyNameFn, 'visibility function (only name)', data, name, variant);
+                var visibilityOnlyNameFnResult = getVisibility(visibilityOnlyNameFn, 'visibility function (only name)', name, variant, data);
 
                 var defaultFn = visibilities['_default'];
                 var defaultFnExists = visibilities['_default'] != null;
-                var defaultFnResult = getVisibility(defaultFn, 'defaultVisibility', data, name, variant);
+                var defaultFnResult = getVisibility(defaultFn, 'defaultVisibility', name, variant, data);
                 
                 if (!requiredFnExists)
                     log("No requiredVisibility rule specified for this feature.");
@@ -190,7 +234,7 @@ export default function featuretoggleapi(rawVisibilities) {
                 if (requiredFnExists)
                     return logAndReturn(true, `Only the requiredVisibility rule was found. This returned true. => This feature will be visible.`);
 
-                return logAndReturn(false, 'No rules were found. This feature will be hidden.',name, variant, data);
+                return logAndReturn(false, 'No rules were found. This feature will be hidden.');
             }
         }
     }
