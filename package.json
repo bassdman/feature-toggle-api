@@ -1,6 +1,6 @@
 {
   "name": "feature-toggle-api",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Gives you advanced feature-toggle for any Framework",
   "main": "dist/feature-toggle-api.min.js",
   "scripts": { 

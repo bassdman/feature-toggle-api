@@ -269,6 +269,24 @@ var isVisible_data = feature.isVisible('feature2','new','grumpfl');
 var isVisible_data_onlyname = feature.isVisible('feature2',null,'grumpfl');
 ```
 
+#### Function setData
+if you want to update the data without update the whole visibilityrule, use the setData-Function.
+```javascript
+    api.setData('featurename','variantname','anydata'); //will set the data for featurename#variantnam -> anydata
+    //or
+    api.setData('featurename','anydata2'); // will set the data for featurename -> anydata2
+
+    //api.setData() calls the listener.
+    api.on('visibilityrule', function (result,name,variant,data) {
+            console.log(data); 
+        });
+
+    api.visibility('feature', 'variant','gruempfel',true); // loggt 'gruempfel'
+    api.setData('feature','variant','newgruempfel');  // loggt 'newgruempfel'
+    api.visibility('feature2', null,'gruempfel2',true);  // loggt 'gruempfel2'
+    api.setData('feature2','newgruempfel2');  // loggt 'newgruempfel2'
+```
+
 #### Listeners
 If you want to 'watch' every initialisation of a visibility rule, you can append a watcher on it.
 ```javascript

@@ -213,7 +213,7 @@ describe("Listener", function () {
         expect(JSON.stringify(listenedEvents)).toBe(JSON.stringify(['feature,undefined,true','feature2,variant,true']));
     });
 
-    it("hould pass parameters in order result,name,variant,data", function () {
+    it("should pass parameters in order result,name,variant,data", function () {
         var api = new featureToggleApi();
         api.visibility('feature', 'variant','gruempfel',function(name,variant,data){
             return (data + name + variant) == 'gruempfelfeaturevariant';
@@ -225,5 +225,20 @@ describe("Listener", function () {
             expect(variant).toBe("variant");
             expect(data).toBe("gruempfel");
         })
+    });
+
+    it("should be executed, when data is changed", function () {
+        var api = new featureToggleApi();
+        var totalData = '';
+
+        api.on('visibilityrule', function (result,name,variant,data) {
+            totalData += data + ','; 
+        });
+
+        api.visibility('feature', 'variant','gruempfel',true);
+        api.setData('feature','variant','newgruempfel');
+        api.visibility('feature2', null,'gruempfel2',true);
+        api.setData('feature2','newgruempfel2');
+        expect(totalData).toBe('gruempfel,newgruempfel,gruempfel2,newgruempfel2,');
     });
 });

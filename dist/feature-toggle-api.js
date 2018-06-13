@@ -121,6 +121,56 @@ function visibilityFnParams(param1, param2, param3, param4) {
     };
 }
 
+function executeListener(listeners, visibilityFn, name, variant, data) {
+    listeners.forEach(function (listener) {
+        listener(visibilityFn(name, variant, data), name, variant, data);
+    });
+}
+
+function dataParams(name, variantOrData, data) {
+    if (data == undefined) return { name: name, variant: undefined, data: variantOrData };
+
+    return { name: name, variant: variantOrData, data: data };
+}
+
+function _isVisible(visibilities, name, variant, data) {
+    _log('Check Visibility of <b>Feature "' + name + '", variant "' + (variant == undefined ? '' : variant) + '"' + (data ? " with data " + JSON.stringify(data) : "") + '.');
+    if (name == undefined) throw new Error('The attribute "name" is required for tag <feature></feature>. Example: <feature name="aname"></feature>');
+
+    var requiredFn = visibilities['_required'];
+    var requiredFnExists = visibilities['_required'] != null;
+    var requiredFnResult = getVisibility(requiredFn, 'requiredVisibility', name, variant, data);
+
+    var visibilityFnKey = getKey(name, variant);
+    var visibilityFn = visibilities[visibilityFnKey];
+    var visibilityFnExists = visibilities[visibilityFnKey] != null;
+    var visibilityFnResult = getVisibility(visibilityFn, 'visibility function', name, variant, data);
+
+    var variantExists = variant != null;
+    var visibilityOnlyNameFnKey = getKey(name, null);
+    var visibilityOnlyNameFn = visibilities[visibilityOnlyNameFnKey];
+    var visibilityOnlyNameFnExists = visibilities[visibilityOnlyNameFnKey] != null;
+    var visibilityOnlyNameFnResult = getVisibility(visibilityOnlyNameFn, 'visibility function (only name)', name, variant, data);
+
+    var defaultFn = visibilities['_default'];
+    var defaultFnExists = visibilities['_default'] != null;
+    var defaultFnResult = getVisibility(defaultFn, 'defaultVisibility', name, variant, data);
+
+    if (!requiredFnExists) _log("No requiredVisibility rule specified for this feature.");else if (requiredFnExists && requiredFnResult === true) _log("The requiredVisibility rule returns true. This feature will be shown when no other rule rejects it.");else if (requiredFnExists && requiredFnResult === false) return _logAndReturn(false, "The requiredVisibility rule returns false. This feature will be hidden.");
+
+    if (visibilityFnExists) return _logAndReturn(visibilityFnResult, 'The visibility rule returns ' + visibilityFnResult + '. This feature will be ' + (visibilityFnResult ? 'visible' : 'hidden') + '.');
+    _log('No visibility rule found matching name and variant.');
+
+    if (variantExists && typeof visibilityOnlyNameFnResult == 'boolean') return _logAndReturn(visibilityOnlyNameFnResult, 'Found a visibility rule for name ' + name + ' without variants. The rule returns ' + visibilityOnlyNameFnResult + '. => This feature will be ' + (visibilityOnlyNameFnResult ? 'visible' : 'hidden') + '.');else if (variantExists) _log('No rules found for name ' + name + ' without variants.');
+
+    if (defaultFnExists) return _logAndReturn(defaultFnResult, 'Found a defaultVisibility rule. The rule returns ' + defaultFnResult + '. => This feature will be ' + (defaultFnResult ? 'visible' : 'hidden') + '.');
+    _log('No default rule found.');
+
+    if (requiredFnExists) return _logAndReturn(true, 'Only the requiredVisibility rule was found. This returned true. => This feature will be visible.');
+
+    return _logAndReturn(false, 'No rules were found. This feature will be hidden.');
+}
+
 function featuretoggleapi(rawVisibilities) {
     var visibilities = initVisibilities(rawVisibilities);
     var datas = {};
@@ -133,6 +183,16 @@ function featuretoggleapi(rawVisibilities) {
         },
         log: function log(message) {
             _log(message);
+        },
+        setData: function setData(name, variant, data) {
+            if (name == undefined) throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
+
+            var params = dataParams(name, variant, data);
+            var key = getKey(params.name, params.variant);
+            var visibilityFn = visibilities[key];
+            datas[key] = params.data;
+
+            executeListener(listeners, visibilityFn, params.name, params.variant, params.data);
         },
         on: function on(eventtype, fn, config) {
             var validEventTypes = ['visibilityrule'];
@@ -152,7 +212,7 @@ function featuretoggleapi(rawVisibilities) {
             _showLogs = _showLogs2 == undefined ? true : _showLogs2;
         },
         isVisible: function isVisible(name, variant, data) {
-            return this.methods._isVisible(name, variant, data);
+            return _isVisible(visibilities, name, variant, data);
         },
         /*
             the following function calls are possible:
@@ -167,9 +227,7 @@ function featuretoggleapi(rawVisibilities) {
             visibilities[key] = visibilityFn;
             datas[key] = params.data;
 
-            listeners.forEach(function (listener) {
-                listener(visibilityFn(params.name, params.variant, params.data), params.name, params.variant, params.data);
-            });
+            executeListener(listeners, visibilityFn, params.name, params.variant, params.data);
         },
         requiredVisibility: function requiredVisibility(fn) {
             if (typeof fn != "function") throw new Error('feature.requiredVisibility(): 1st parameter must be a function, but is ' + (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)));
@@ -180,45 +238,6 @@ function featuretoggleapi(rawVisibilities) {
             if (typeof fn != "function") throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)));
 
             visibilities['_default'] = parseToFn(fn);
-        },
-        methods: {
-            _isVisible: function _isVisible(name, variant, data) {
-                _log('Check Visibility of <b>Feature "' + name + '", variant "' + (variant == undefined ? '' : variant) + '"' + (data ? " with data " + JSON.stringify(data) : "") + '.');
-                if (name == undefined) throw new Error('The attribute "name" is required for tag <feature></feature>. Example: <feature name="aname"></feature>');
-
-                var requiredFn = visibilities['_required'];
-                var requiredFnExists = visibilities['_required'] != null;
-                var requiredFnResult = getVisibility(requiredFn, 'requiredVisibility', name, variant, data);
-
-                var visibilityFnKey = getKey(name, variant);
-                var visibilityFn = visibilities[visibilityFnKey];
-                var visibilityFnExists = visibilities[visibilityFnKey] != null;
-                var visibilityFnResult = getVisibility(visibilityFn, 'visibility function', name, variant, data);
-
-                var variantExists = variant != null;
-                var visibilityOnlyNameFnKey = getKey(name, null);
-                var visibilityOnlyNameFn = visibilities[visibilityOnlyNameFnKey];
-                var visibilityOnlyNameFnExists = visibilities[visibilityOnlyNameFnKey] != null;
-                var visibilityOnlyNameFnResult = getVisibility(visibilityOnlyNameFn, 'visibility function (only name)', name, variant, data);
-
-                var defaultFn = visibilities['_default'];
-                var defaultFnExists = visibilities['_default'] != null;
-                var defaultFnResult = getVisibility(defaultFn, 'defaultVisibility', name, variant, data);
-
-                if (!requiredFnExists) _log("No requiredVisibility rule specified for this feature.");else if (requiredFnExists && requiredFnResult === true) _log("The requiredVisibility rule returns true. This feature will be shown when no other rule rejects it.");else if (requiredFnExists && requiredFnResult === false) return _logAndReturn(false, "The requiredVisibility rule returns false. This feature will be hidden.");
-
-                if (visibilityFnExists) return _logAndReturn(visibilityFnResult, 'The visibility rule returns ' + visibilityFnResult + '. This feature will be ' + (visibilityFnResult ? 'visible' : 'hidden') + '.');
-                _log('No visibility rule found matching name and variant.');
-
-                if (variantExists && typeof visibilityOnlyNameFnResult == 'boolean') return _logAndReturn(visibilityOnlyNameFnResult, 'Found a visibility rule for name ' + name + ' without variants. The rule returns ' + visibilityOnlyNameFnResult + '. => This feature will be ' + (visibilityOnlyNameFnResult ? 'visible' : 'hidden') + '.');else if (variantExists) _log('No rules found for name ' + name + ' without variants.');
-
-                if (defaultFnExists) return _logAndReturn(defaultFnResult, 'Found a defaultVisibility rule. The rule returns ' + defaultFnResult + '. => This feature will be ' + (defaultFnResult ? 'visible' : 'hidden') + '.');
-                _log('No default rule found.');
-
-                if (requiredFnExists) return _logAndReturn(true, 'Only the requiredVisibility rule was found. This returned true. => This feature will be visible.');
-
-                return _logAndReturn(false, 'No rules were found. This feature will be hidden.');
-            }
         }
     };
 }
