@@ -55,8 +55,7 @@ Create a new project, type
 ``` shell
     npm install feature-toggle-api --save
 ```
-You want to include it as a scripttag? Here's a sample HTML-Template 
-Replace the index.html - file with the following:
+You want to include it as a scripttag? Here's a sample HTML-File. 
 ``` html
 <!DOCTYPE html>
 <html lang="en">
@@ -325,7 +324,7 @@ With this you don't have to waste your time with debugging the visibility state.
 
 
 ## API-Description
-###Visibility
+### Visibility
 Adds a visibility rule.
 
 Parameters:
@@ -362,7 +361,7 @@ api.visibility('name',function(rule){
 });
 ```
 
-###isVisible
+### isVisible
 Prooves if a function is visible.
 
 Parameters:
@@ -380,7 +379,7 @@ api.isVisible(name,variant);
 api.isVisible(name,variant,data);
 ```
 
-###on
+### on
 A listener that is executed, everytime a function visibility rule is added or changed. Is also executed for rules that are passed via constructor.
 
 Parameters:
@@ -405,7 +404,7 @@ api.on('visibilityrule', function (event) {
 })
 ```
 
-###setData
+### setData
 Sets the data for the corresp. feature;
 Also triggers listener "visibilityrule".
 
@@ -422,7 +421,7 @@ Returns
      api.setData(name,variant,data);
 ```
 
-###requiredVisibility
+### requiredVisibility
 Sets the function for the required visibility.
 
 Parameters: 
@@ -439,12 +438,11 @@ api.requiredVisibility(function(rule){
         event.name, 
         event.variant, 
         event.data, 
-        event.result
     */
 });
 ```
 
-###requiredVisibility
+### defaultVisibility
 Sets the function for the default visibility.
 
 Parameters: 
@@ -461,12 +459,11 @@ api.defaultVisibility(function(rule){
         event.name, 
         event.variant, 
         event.data, 
-        event.result
     */
 });
 ```
 
-###showLogs
+### showLogs
 Shows the Logs of a visibilityrule when function is called or listener is triggered.
 
 Parameters:
@@ -483,7 +480,7 @@ api.showLogs(true);
 
 
 ## Version Changes
-###V 3.xxx vs V 2.xxx
+### V 3.xxx vs V 2.xxx
 Unfortunately the mess with function-parameters did not stop with v2, I had to provide some new parameters.
 Instead of just adding them as another parameter, I decited to become future-prooved and put all function params in
 one object.
@@ -513,7 +510,7 @@ function api.on:
     })
 ```
 
-###V 2.xxx vs V 1.xxx
+### V 2.xxx vs V 1.xxx
 Version 2.x stopped the mess with the different orders of functionparams.
 In version 1.x it was once api.visibility(data,name,variant), in another function fn(name,variant,data),...
 Now there is only one order: api.visibility(name,variant,data) or fn(result,name,variant,data).
