@@ -11,7 +11,8 @@
     npm install feature-toggle-api --save
 ```
 
-You use V 1.xxx or V 2.xxx and want to migrate to Version 3.xxx? [Read Paragraph Version Changes below](#version-changes) 
+ - You use V 1.xxx or V 2.xxx and want to migrate to Version 3.xxx? That's simple. [Read this paragraph below](#version-changes)
+ - [Jump the API](#api-description)
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
@@ -250,7 +251,7 @@ You already want to initialize it in the constructor? No Problem.
 ```
 
 #### Function isVisible
-The api for this function:
+Example for this function:
 ```javascript
 // prooves if feature2 is visible
 var isVisible = feature.isVisible('feature2');
