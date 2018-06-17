@@ -10,11 +10,8 @@
 ``` shell
     npm install feature-toggle-api --save
 ```
-Version 2.x stopped the mess with the different orders of functionparams.
-In version 1.x it was once api.visibility(data,name,variant), in another function fn(name,variant,data),...
-Now there is only one order: api.visibility(name,variant,data) or fn(result,name,variant,data).
-Take care of this if you used v1.x.
 
+You use V 1.xxx or V 2.xxx and want to migrate to Version 3.xxx? [Read Paragraph Version Changes below](#version-changes) 
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
@@ -106,19 +103,18 @@ var api = new featuretoggleapi({
     feature1: true, //feature1 will be shown
     feature2: false, //feature2 won't be shown,
     // a rule can also be a function. important: it must return a boolean value; feature 3 would be shown
-    feature3: function(name, variant, data){return true;}, 
+    feature3: function(rule){return true;}, 
     feature4: true,
-    "feature4:new": false //feature 4 will be shown - but if variant is new, it won't be. 
+    "feature4:new": false, //feature 4 will be shown - but if variant is new, it won't be. 
 });
 
 //You could also write it like this:
 var api = new featuretoggleapi();
 api.visibility('feature1',true);
 api.visibility('feature2',false);
-api.visibility('feature3',function(name, variant, data){return true});
+api.visibility('feature3',function(rule){return true});
 api.visibility('feature4',true);
 api.visibility('feature4','new',false);
-
 //only possible via functioncall: pass some data; maybe necessary in the listener
 api.visibility('feature4','new',"some custom data",false);
 ```
@@ -145,7 +141,7 @@ For the next examples we will imagine, the properties are mapped to the visibili
 api.visibility('feature1',true);
 
 //Remember: you can also wrap it in functions - but the example above is better to read
-api.visibility('feature1',function ( name, variant, data) {
+api.visibility('feature1',function ( rule) {
         //here would be some more complex logic, in this example we keep it simple
         return true;
 });
@@ -177,19 +173,20 @@ api.visibility('feature2','new', false);
     feature.isVisible('feature3','new','grumpfel'); //returns true
     feature.isVisible('feature3','new','grumpfelbu'); //returns false
 */
-api.visibility('feature3','new', function (name,variant,data) {
-     //data could also be an object or whatever you want
-      return data == "grumpfel";
+api.visibility('feature3','new', function (rule) {
+     //rule.data could also be an object or whatever you want
+     //you could also use rule.name, rule.variant,...
+      return rule.data == "grumpfel";
 });
 ```
 #### Default Visibility
 Bored of writing the same visibility rule again and again? Use defaultVisibility. This is the default-rule and will be overwritten by feature.visibility() - rules.
 ``` javascript
-feature.defaultVisibility(function(name,variant,data){
+feature.defaultVisibility(function(rule){
     return true;
 });
 
-feature.visibility('feature2', 'new', function(name,variant,data){
+feature.visibility('feature2', 'new', function(rule){
     return false;
 });
 /*
@@ -217,22 +214,22 @@ This rule is allways executed, before the other rules. When it returns false, th
    var globalConfig = { "feature2" : true }
 */
 
-feature.requiredVisibility(function(name,variant,data){
+feature.requiredVisibility(function(rule){
     //In this case it returns true, when name == 'feture2'
-    return globalConfig[name] === true;
+    return globalConfig[rule.name] === true;
 });
 
 /*
   feature2, variant "new" returns false, but requiredConfig returns true. Both rules must match, so it will be hidden
 */
-feature.visibility('feature2','new',function(name,variant,data){
+feature.visibility('feature2','new',function(rule){
     return false;
 });
 
 /*
   feature3 returns true, but requiredConfig returns false. Both rules must match, so Feature3 is hidden
 */
-feature.visibility('feature3',function(name,variant,data){
+feature.visibility('feature3',function(rule){
     return true;
 });
 
@@ -277,14 +274,14 @@ if you want to update the data without update the whole visibilityrule, use the 
     api.setData('featurename','anydata2'); // will set the data for featurename -> anydata2
 
     //api.setData() calls the listener.
-    api.on('visibilityrule', function (result,name,variant,data) {
-            console.log(data); 
+    api.on('visibilityrule', function (rule) {
+            console.log(rule.data); 
         });
 
-    api.visibility('feature', 'variant','gruempfel',true); // loggt 'gruempfel'
-    api.setData('feature','variant','newgruempfel');  // loggt 'newgruempfel'
-    api.visibility('feature2', null,'gruempfel2',true);  // loggt 'gruempfel2'
-    api.setData('feature2','newgruempfel2');  // loggt 'newgruempfel2'
+    api.visibility('feature', 'variant','gruempfel',true); // logs 'gruempfel'
+    api.setData('feature','variant','newgruempfel');  // logs 'newgruempfel'
+    api.visibility('feature2', null,'gruempfel2',true);  // logs 'gruempfel2'
+    api.setData('feature2','newgruempfel2');  // logs 'newgruempfel2'
 ```
 
 #### Listeners
@@ -297,8 +294,8 @@ If you want to 'watch' every initialisation of a visibility rule, you can append
     //The result: 
     //true, 'feature', undefined, undefined
     //true, 'feature2, 'variant', "data"
-    api.on('visibilityrule', function (result,name,variant, data) {
-        console.log(result+","+name+","+variant+","+data);
+    api.on('visibilityrule', function (event) {
+        console.log(event.result+","+event.name+","+event.variant+","+event.data);
     })
 ```
 
@@ -326,11 +323,201 @@ Only the requiredVisibility rule was found. This returned true. => This feature 
 ```
 With this you don't have to waste your time with debugging the visibility state. 
 
-#### Log
-Log a custom message, when showLogs() == true.
+
+## API-Description
+###Visibility
+Adds a visibility rule.
+
+Parameters:
+ - name: name of the feature; required; type string
+ - variant: variant of the feature; optional; type string
+ - data: corresp. data for the feature; optional; type any
+ - result: result for this feature; required; boolean or function that returns boolean
+
+Returns:
+    nothing
 ```javascript
-api.log("Here's my custom message");
+//possible parameters
+api.visibility(name,result);
+api.visibility(name,variant,result);
+api.visibility(name,variant,data,result);
 ```
+Example: 
+```javascript
+//possible parameters
+api.visibility('name',true);
+api.visibility('name','variant',true);
+api.visibility('name','variant','data',true);
+
+//if result is a function
+api.visibility('name',function(rule){
+    /*
+    rule has the following parameters
+        name: Name of the feature,
+        variant: Variant: Variant of the feature
+        data: Data of the feature
+    }
+    */
+   return true
+});
+```
+
+###isVisible
+Prooves if a function is visible.
+
+Parameters:
+ - name: name of the feature; required; type string
+ - variant: variant of the feature; optional; type string
+ - data: corresp. data for the feature; optional; type any
+
+Returns:
+    boolean: weather the feature is visible or not
+
+```javascript
+//possible parameters
+api.isVisible(name);
+api.isVisible(name,variant);
+api.isVisible(name,variant,data);
+```
+
+###on
+A listener that is executed, everytime a function visibility rule is added or changed. Is also executed for rules that are passed via constructor.
+
+Parameters:
+ - eventname: name of event; required; type string; currently only 'visibilityrule' is allowed
+ - eventfunction: function that is executed when a rule changes; required; type function
+
+Events:
+ - visibilityrule: executed, everytime a function visibility rule is added or changed. Is also executed for rules that are passed via constructor.
+
+Returns
+    Nothing
+
+```javascript
+api.on('visibilityrule', function (event) {
+    /*
+        Parameters: 
+        event.name, 
+        event.variant, 
+        event.data, 
+        event.result
+    */
+})
+```
+
+###setData
+Sets the data for the corresp. feature;
+Also triggers listener "visibilityrule".
+
+Parameters:
+ - name: name of the feature; required; type string
+ - variant: variant of the feature; optional; type string
+ - data: corresp. data for the feature; required; type any
+
+Returns
+    nothing
+
+```javascript
+     api.setData(name,data); 
+     api.setData(name,variant,data);
+```
+
+###requiredVisibility
+Sets the function for the required visibility.
+
+Parameters: 
+ - requiredVisibilityFunction
+
+Returns:
+ - nothing
+
+```javascript
+//possible parameters
+api.requiredVisibility(function(rule){
+    //do sth
+    /* Parameters: 
+        event.name, 
+        event.variant, 
+        event.data, 
+        event.result
+    */
+});
+```
+
+###requiredVisibility
+Sets the function for the default visibility.
+
+Parameters: 
+ - defaultVisibilityFunction
+
+Returns:
+ - nothing
+
+```javascript
+//possible parameters
+api.defaultVisibility(function(rule){
+    //do sth
+    /* Parameters: 
+        event.name, 
+        event.variant, 
+        event.data, 
+        event.result
+    */
+});
+```
+
+###showLogs
+Shows the Logs of a visibilityrule when function is called or listener is triggered.
+
+Parameters:
+ - showLogs: are should logs be shown or not?; optional; type boolean; default: true
+
+Returns
+    nothing
+
+```javascript
+api.showLogs(); 
+//is the same as
+api.showLogs(true);
+```
+
+
+## Version Changes
+###V 3.xxx vs V 2.xxx
+Unfortunately the mess with function-parameters did not stop with v2, I had to provide some new parameters.
+Instead of just adding them as another parameter, I decited to become future-prooved and put all function params in
+one object.
+
+function api.visibility:
+```javascript
+    //old
+    api.visibility('name','variant',function(name,variant,data){/*do sth with these parameters*/});
+
+    //new
+    api.visibility('name','variant',function(rule){/*do sth with rule.name, rule.variant, rule.data,...*/});
+
+    //this does not change:
+    api.visibility('name','variant','aResultParameter');
+```
+
+function api.on:
+```javascript
+    //old
+     api.on('visibilityrule', function (result,name,variant, data) {
+        //do sth with the parameters
+    })
+
+    //new
+     api.on('visibilityrule', function (event) {
+        //do sth with the parameters event.name, event.variant, event.data, event.result,...
+    })
+```
+
+###V 2.xxx vs V 1.xxx
+Version 2.x stopped the mess with the different orders of functionparams.
+In version 1.x it was once api.visibility(data,name,variant), in another function fn(name,variant,data),...
+Now there is only one order: api.visibility(name,variant,data) or fn(result,name,variant,data).
+Take care of this if you used v1.x.
 
 ## License	
 <a href="https://opensource.org/licenses/MIT">MIT</a>.
