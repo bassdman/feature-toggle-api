@@ -110,8 +110,8 @@ describe("Default Visibility", function () {
         expect(visibility).toBe(true);
     });
 
-    it("should return false if feature isFalse", function () {
-        api.visibility('featureFalse', false)
+    it("should return false if feature is False", function () {
+        api.visibility('featureFalse', false);
         const visibility = api.isVisible('featureFalse');
         expect(visibility).toBe(false);
     });
@@ -184,8 +184,8 @@ describe("Listener", function () {
     it("should access function twice for two initial eventnames", function () {
         var listenedEvents = [];
 
-        api.on('visibilityrule', function (result,name,variant,data) {
-            listenedEvents.push(name+","+variant+","+result);
+        api.on('visibilityrule', function (event) {
+            listenedEvents.push(event.name+","+event.variant+","+event.result);
         })
 
         expect(JSON.stringify(listenedEvents)).toBe(JSON.stringify(['feature,undefined,true','feature2,variant,true']));
@@ -195,8 +195,8 @@ describe("Listener", function () {
         var listenedEvents = [];
         var localapi = new featureToggleApi({feature: true});
         localapi.visibility("feature2","variant",true);
-        localapi.on('visibilityrule', function (result,name,variant) {
-            listenedEvents.push(name+","+variant+","+result);
+        localapi.on('visibilityrule', function (event) {
+            listenedEvents.push(event.name+","+event.variant+","+event.result);
         })
 
         expect(JSON.stringify(listenedEvents)).toBe(JSON.stringify(['feature,undefined,true','feature2,variant,true']));
@@ -205,8 +205,8 @@ describe("Listener", function () {
     it("should access function twice if visibilityrule is added after listener", function () {
         var listenedEvents = [];
         var localapi = new featureToggleApi({feature: true});
-        localapi.on('visibilityrule', function (result,name,variant) {
-            listenedEvents.push(name+","+variant+","+result);
+        localapi.on('visibilityrule', function (event) {
+            listenedEvents.push(event.name+","+event.variant+","+event.result);
         });
         localapi.visibility("feature2","variant",true);
 
@@ -219,20 +219,20 @@ describe("Listener", function () {
             return (data + name + variant) == 'gruempfelfeaturevariant';
         });
 
-        api.on('visibilityrule', function (result,name,variant,data) {
-            expect(result).toBe(true);
-            expect(name).toBe("feature");
-            expect(variant).toBe("variant");
-            expect(data).toBe("gruempfel");
+        api.on('visibilityrule', function (event) {
+            expect(event.result).toBe(true);
+            expect(event.name).toBe("feature");
+            expect(event.variant).toBe("variant");
+            expect(event.data).toBe("gruempfel");
         })
     });
 
-    it("should be executed, when data is changed", function () {
+    it("should be executed, when data has changed", function () {
         var api = new featureToggleApi();
         var totalData = '';
 
-        api.on('visibilityrule', function (result,name,variant,data) {
-            totalData += data + ','; 
+        api.on('visibilityrule', function (event) {
+            totalData += event.data + ','; 
         });
 
         api.visibility('feature', 'variant','gruempfel',true);
