@@ -29,7 +29,7 @@ describe("Initialisation / Basic Tests", function () {
 
 describe("Basic visibility of features", function () {
     const api = new featureToggleApi();
-
+    
     it("should return true if parameter is boolean", function () {
         api.visibility('featurebool', true);
         const visibility = api.isVisible('featurebool');
@@ -83,21 +83,34 @@ describe("Basic visibility of features", function () {
     });
 
     it("should return false if data returns false", function () {
-        api.visibility('featureFalse', 'variant', function (name, variant, data) { return data == 'succeed' });
+        api.visibility('featureFalse', 'variant', function (rule) { return rule.data == 'succeed' });
         const visibility = api.isVisible('featureFalse', 'variant', 'fail');
         expect(visibility).toBe(false);
     });
 
     it("should return false if data returns true", function () {
-        api.visibility('featureFalse', 'variant', function (name, variant, data) { return data == 'succeed' });
+        api.visibility('featureFalse', 'variant', function (rule) { return rule.data == 'succeed' });
         const visibility = api.isVisible('featureFalse', 'variant', 'succeed');
         expect(visibility).toBe(true);
+    });
+
+    it("should pass correct parameters for visibilityrule", function () {
+        api.visibility('featureFalse2', 'variant', function (rule) { 
+            if(rule._internalCall)
+                return;
+            expect(rule.name).toBe('featureFalse2');
+            expect(rule.variant).toBe('variant');
+            expect(rule.data).toBe('succeed');
+        });
+
+        api.isVisible('featureFalse2', 'variant', 'succeed');
+        
     });
 });
 
 describe("Default Visibility", function () {
     const api = new featureToggleApi();
-    api.defaultVisibility((name, variant, data) => {
+    api.defaultVisibility((result) => {
         return true;
     });
     it("should return true if feature does not exist", function () {
@@ -125,8 +138,8 @@ describe("Default Visibility", function () {
 
 describe("Required Visibility", function () {
     const api = new featureToggleApi();
-    api.requiredVisibility((name, variant, data) => {
-        return variant == "valid";
+    api.requiredVisibility((result) => {
+        return result.variant == "valid";
     });
 
     it("should return false if feature does not exist and requirerule matches", function () {
@@ -154,7 +167,7 @@ describe("Required Visibility", function () {
     });
 
     it("should return false if defaultVisibility returns true", function () {
-        api.defaultVisibility((name, variant, data) => {
+        api.defaultVisibility((result) => {
             return true;
         });
         const visibility = api.isVisible('featureTrue', 'invalid');

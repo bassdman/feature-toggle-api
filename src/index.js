@@ -6,12 +6,6 @@ const parseToFn = function (fnOrBool) {
     return fnOrBool;
 }
 
-function executeListener(listeners, event) {
-    listeners.forEach(listener => {
-        listener(event);
-    });
-}
-
 function initVisibilities(visibilities = {}) {
     const returnVisibilities = {};
     Object.keys(visibilities).forEach(key => {
@@ -29,19 +23,28 @@ export default function featuretoggleapi(rawVisibilities) {
         showLogs: false
     }
 
+    function executeListener(event) {
+        globals.listeners.forEach(listener => {
+            listener(event);
+
+            //zeige die logs an
+            if(global.showLogs)
+                api.isVisible(event.name,event.variant,event.data);
+        });
+    }
+
     const log = function (message) {
-        if (!globals.showLogs) 
+        if (!globals.showLogs)
             return;
 
         //Nur Browser können Syntaxhighlighting die anderen geben die Nachricht einfach aus und schneiden
         //die styletags raus
-        if(typeof window === 'undefined')
-        {
-            const loggedMessage = message.replace(/<b>/g,"");
+        if (typeof window === 'undefined') {
+            const loggedMessage = message.replace(/<b>/g, "");
             console.log(loggedMessage);
             return;
         }
-            
+
         var hasBoldTag = message.indexOf('<b>') != -1;
         var hasVisibleKeyword = message.indexOf('visible') != -1;
         var hasHiddenKeyword = message.indexOf('hidden') != -1;
@@ -72,7 +75,7 @@ export default function featuretoggleapi(rawVisibilities) {
         if (visibilityFn == null)
             return undefined;
 
-        var calculatedVisibility = visibilityFn(name, variant, data);
+        var calculatedVisibility = visibilityFn({ name: name, variant: variant, data: data });
 
         if (typeof calculatedVisibility == 'boolean') {
             return calculatedVisibility;
@@ -145,14 +148,20 @@ export default function featuretoggleapi(rawVisibilities) {
         let event;
 
         event = { name: name, variant: variant, data: data };
-        
+
         event.key = getKey(event.name, event.variant);
 
-        if(result == null)
+        if (result == null)
             return event;
 
         event.visibilityFunction = parseToFn(result);
-        event.result = event.visibilityFunction(event.name, event.variant, event.data)
+        event.result = event.visibilityFunction({ 
+            name: event.name, 
+            variant: event.variant, 
+            data: event.data, 
+            _internalCall: true,
+            description:  'When attaching a function, the result must be calculated internally. You can filter this out with the _internalCall:true -Flag.'
+        })
         return event;
     }
 
@@ -213,12 +222,6 @@ export default function featuretoggleapi(rawVisibilities) {
 
     return {
         name: 'feature-toggle-api',
-        logAndReturn: function (returnValue, fn) {
-            return logAndReturn(returnValue, fn)
-        },
-        log: function (message) {
-            log(message);
-        },
         setData: function (nameParam, variantOrDataParam, dataParam) {
             if (nameParam == undefined)
                 throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
@@ -230,7 +233,7 @@ export default function featuretoggleapi(rawVisibilities) {
 
             globals.datas[event.key] = event.data;
 
-            executeListener(globals.listeners, event);
+            executeListener(event);
         },
         on: function (eventtype, fn, config) {
             const validEventTypes = ['visibilityrule'];
@@ -252,7 +255,7 @@ export default function featuretoggleapi(rawVisibilities) {
         showLogs: function (showLogs) {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
-        isVisible: function (name, variant, data) { return isVisible( name, variant, data) },
+        isVisible,
         /*
             the following function calls are possible:
             visibility(name,result);
@@ -261,12 +264,12 @@ export default function featuretoggleapi(rawVisibilities) {
         */
         visibility: function (param1, param2, param3, param4) {
             const params = visibilityFnParams(param1, param2, param3, param4);
-            const event = getEvent(params.name,params.variant,params.data, params.result);
+            const event = getEvent(params.name, params.variant, params.data, params.result);
 
             globals.visibilities[event.key] = event.visibilityFunction;
             globals.datas[event.key] = event.data;
 
-            executeListener(globals.listeners, event);
+            executeListener(event);
         },
         requiredVisibility: function (fn) {
             if (typeof fn != "function")
