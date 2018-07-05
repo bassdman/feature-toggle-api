@@ -511,12 +511,6 @@ function api.on:
     })
 ```
 
-### V 2.xxx vs V 1.xxx
-Version 2.x stopped the mess with the different orders of functionparams.
-In version 1.x it was once api.visibility(data,name,variant), in another function fn(name,variant,data),...
-Now there is only one order: api.visibility(name,variant,data) or fn(result,name,variant,data).
-Take care of this if you used v1.x.
-
 ## License	
 <a href="https://opensource.org/licenses/MIT">MIT</a>.
 Copyright (c) 2018 Manuel Gelsen
