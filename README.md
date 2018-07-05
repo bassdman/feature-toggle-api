@@ -11,8 +11,7 @@
     npm install feature-toggle-api --save
 ```
 
- - You use V 1.xxx or V 2.xxx and want to migrate to Version 3.xxx? That's simple. [Read this paragraph below](#version-changes)
- - [Jump the API](#api-description)
+ - [Quicklink to the API](#api-description)
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
@@ -481,7 +480,6 @@ api.showLogs(true);
 
 
 ## Version Changes
-### V 3.xxx vs V 2.xxx
 Unfortunately the mess with function-parameters did not stop with v2, I had to provide some new parameters.
 Instead of just adding them as another parameter, I decited to become future-prooved and put all function params in
 one object.
