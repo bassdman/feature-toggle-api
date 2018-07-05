@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Listener Feature-Toggle-API-Test</title>
+    <script>/*Quickhack to handle es-modules in Browser*/ var exports = {};</script>
+    <script src="../dist/feature-toggle-api.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- The name property is required -->
+        <feature name="feature1">This is "Feature1"</feature>
+        <feature name="featureh1" tag="h1">This feature is rendered with a h1-tag as root-Element, not a div.</feature>
+        <!-- The variant property is optional and can be any string -->
+        <feature name="feature2">This is "Feature2"</feature>
+        <feature name="feature2" variant="new">This is "Feature2" with variant "new"</feature>
+        <feature name="feature2" variant="old">This "Feature2" with variant "old"</feature>
+        <feature name="feature2" variant="grumpfel">This "Feature2" with variant "grumpfel"</feature>
+    
+        <feature name="feature3" variant="old" data="grumpfel">This "Feature3" with variant "old" has some Data.</feature>
+        <feature name="feature3" variant="new" data="{'text':'grumpfel'}">This "Feature3" with variant "old" has some Data. (watch the : before the data-attribute. Otherwise you'll get this as a string...)</feature>
+    </div>
+        <script>
+            var api = featuretoggleapi({
+                "feature2#new": true,
+                "feature2#grumpfel": true
+            });
+            var featureTags = document.querySelectorAll('feature');
+            featureTags.forEach(tag => {tag.style.display = 'none'});
+
+            api.on('visibilityrule',function(event){
+                var selector = 'feature[name="'+event.name+'"]';
+                if(event.variant)selector += '[variant="'+event.variant+'"]';
+                var elements = document.querySelectorAll(selector);
+                elements.forEach(elem => {elem.style.display = event.result ? 'block' : none}); 
+            })
+         
+        </script>
+</body>
+</html>
