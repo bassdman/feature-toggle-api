@@ -15,12 +15,38 @@ function initVisibilities(visibilities = {}) {
     return returnVisibilities;
 }
 
-export default function featuretoggleapi(rawVisibilities) {
+export default function featuretoggleapi(rawVisibilities,config={}) {
+
     const globals = {
         datas: {},
         listeners: [],
         visibilities: initVisibilities(rawVisibilities),
-        showLogs: false
+        showLogs: false,
+        globalScope: {}
+    }
+
+    function init(api){
+        if(typeof window !== undefined){
+            globals.globalScope = window;
+        }
+        
+        if(config.plugins)
+        {
+            if(!Array.isArray(config.plugins))
+                throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
+            
+            config.plugins.forEach(plugin =>{
+                if(typeof plugin !== 'function')
+                    throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
+                
+                addPlugin(plugin,api);
+            });
+        }
+    }
+
+    function addPlugin(plugin,api)
+    {
+        plugin(api,globals.globalScope);
     }
 
     function executeListener(event) {
@@ -220,7 +246,7 @@ export default function featuretoggleapi(rawVisibilities) {
         return logAndReturn(false, 'No rules were found. This feature will be hidden.');
     }
 
-    return {
+    const api = {
         name: 'feature-toggle-api',
         setData: function (nameParam, variantOrDataParam, dataParam) {
             if (nameParam == undefined)
@@ -282,6 +308,11 @@ export default function featuretoggleapi(rawVisibilities) {
                 throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + typeof fn);
 
             globals.visibilities['_default'] = parseToFn(fn);
-        }
-    }
+        },
+        addPlugin: function(plugin){
+            addPlugin(plugin,this);
+        },
+    };
+    init(api);
+    return api;
 }

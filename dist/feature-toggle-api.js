@@ -28,12 +28,36 @@ function initVisibilities() {
 }
 
 function featuretoggleapi(rawVisibilities) {
+    var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+
     var globals = {
         datas: {},
         listeners: [],
         visibilities: initVisibilities(rawVisibilities),
-        showLogs: false
+        showLogs: false,
+        globalScope: {}
     };
+
+    function init(api) {
+        if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) !== undefined) {
+            globals.globalScope = window;
+        }
+
+        if (config.plugins) {
+            if (!Array.isArray(config.plugins)) throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
+
+            config.plugins.forEach(function (plugin) {
+                if (typeof plugin !== 'function') throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + (typeof plugin === 'undefined' ? 'undefined' : _typeof(plugin)) + '.');
+
+                _addPlugin(plugin, api);
+            });
+        }
+    }
+
+    function _addPlugin(plugin, api) {
+        plugin(api, globals.globalScope);
+    }
 
     function executeListener(event) {
         globals.listeners.forEach(function (listener) {
@@ -206,7 +230,7 @@ function featuretoggleapi(rawVisibilities) {
         return logAndReturn(false, 'No rules were found. This feature will be hidden.');
     }
 
-    return {
+    var api = {
         name: 'feature-toggle-api',
         setData: function setData(nameParam, variantOrDataParam, dataParam) {
             if (nameParam == undefined) throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
@@ -263,6 +287,11 @@ function featuretoggleapi(rawVisibilities) {
             if (typeof fn != "function") throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)));
 
             globals.visibilities['_default'] = parseToFn(fn);
+        },
+        addPlugin: function addPlugin(plugin) {
+            _addPlugin(plugin, this);
         }
     };
+    init(api);
+    return api;
 }

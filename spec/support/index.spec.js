@@ -255,3 +255,52 @@ describe("Listener", function () {
         expect(totalData).toBe('gruempfel,newgruempfel,gruempfel2,newgruempfel2,');
     });
 });
+
+describe("Plugins", function () {
+    const api = new featureToggleApi();
+
+    it("function addPlugin should exist", function () {
+        var api = new featureToggleApi();
+        
+        expect(api.addPlugin).not.toBe(null);
+
+    
+     /*   var apix = require('./dist/feature-toggle-api.js').default;
+        var urlplugin = require('./plugins/urlplugin');
+        const api = apix();
+        api.addPlugin(urlplugin())
+
+        console.log(api.newFn());
+
+        html-plugin, url-plugin*/
+    });
+
+    it("should add attribute 'newplugin' to the api", function () {
+        function newPlugin(api,window){
+            api.newplugin = true;
+        }
+
+        var api = new featureToggleApi();
+        api.addPlugin(newPlugin);
+        expect(api.newplugin).toBe(true);
+    });
+
+    it("should add plugins via attribute constructor config", function () {
+        function newPlugin(api,window){
+            api.newplugin = true;
+        }
+
+        var api = new featureToggleApi({},{plugins: [newPlugin]});
+
+        expect(api.newplugin).toBe(true);
+    });
+
+         /*   var apix = require('./dist/feature-toggle-api.js').default;
+        var urlplugin = require('./plugins/urlplugin');
+        const api = apix();
+        api.addPlugin(urlplugin())
+
+        console.log(api.newFn());
+
+        html-plugin, url-plugin*/
+});
