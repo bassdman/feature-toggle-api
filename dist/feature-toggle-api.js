@@ -21,50 +21,49 @@ function initVisibilities() {
 
     var returnVisibilities = {};
     Object.keys(visibilities).forEach(function (key) {
+        if (key.startsWith('_')) return;
         returnVisibilities[key] = parseToFn(visibilities[key]);
     });
-
     return returnVisibilities;
 }
 
-function featuretoggleapi(rawVisibilities) {
-    var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+function featuretoggleapi() {
+    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 
     var globals = {
         datas: {},
-        listeners: [],
-        visibilities: initVisibilities(rawVisibilities),
+        listeners: {},
+        visibilities: initVisibilities(config),
         showLogs: false,
         globalScope: {}
     };
 
     function init(api) {
         if ((typeof window === 'undefined' ? 'undefined' : _typeof(window)) !== undefined) {
-            globals.globalScope = window;
+            globals.globalScope = config._globalScope || window;
         }
 
-        if (config.plugins) {
-            if (!Array.isArray(config.plugins)) throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
+        if (config._plugins) {
+            if (!Array.isArray(config._plugins)) throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
 
-            config.plugins.forEach(function (plugin) {
+            config._plugins.forEach(function (plugin) {
                 if (typeof plugin !== 'function') throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + (typeof plugin === 'undefined' ? 'undefined' : _typeof(plugin)) + '.');
 
                 _addPlugin(plugin, api);
             });
         }
+
+        triggerEvent('init');
     }
 
     function _addPlugin(plugin, api) {
         plugin(api, globals.globalScope);
     }
 
-    function executeListener(event) {
-        globals.listeners.forEach(function (listener) {
-            listener(event);
-
-            //zeige die logs an
-            if (global.showLogs) api.isVisible(event.name, event.variant, event.data);
+    function triggerEvent(eventtype, param) {
+        (globals.listeners[eventtype] || []).forEach(function (listener) {
+            listener(param);
         });
     }
 
@@ -242,13 +241,11 @@ function featuretoggleapi(rawVisibilities) {
 
             globals.datas[event.key] = event.data;
 
-            executeListener(event);
+            triggerEvent('visibilityrule', event);
         },
         on: function on(eventtype, fn, config) {
-            var validEventTypes = ['visibilityrule'];
-            if (validEventTypes.indexOf(eventtype.toLowerCase()) == -1) throw new Error('Eventtype "' + eventtype.toLowerCase() + '" does not exist. Only "visibilityrule" is valid');
-
-            globals.listeners.push(fn);
+            globals.listeners[eventtype] = globals.listeners[eventtype] || [];
+            globals.listeners[eventtype].push(fn);
 
             if (config != undefined && config.ignorePreviousRules) return;
 
@@ -259,6 +256,7 @@ function featuretoggleapi(rawVisibilities) {
                 fn(event);
             });
         },
+        triggerEvent: triggerEvent,
         showLogs: function showLogs(_showLogs) {
             globals.showLogs = _showLogs == undefined ? true : _showLogs;
         },
@@ -276,7 +274,7 @@ function featuretoggleapi(rawVisibilities) {
             globals.visibilities[event.key] = event.visibilityFunction;
             globals.datas[event.key] = event.data;
 
-            executeListener(event);
+            triggerEvent('visibilityrule', event);
         },
         requiredVisibility: function requiredVisibility(fn) {
             if (typeof fn != "function") throw new Error('feature.requiredVisibility(): 1st parameter must be a function, but is ' + (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)));

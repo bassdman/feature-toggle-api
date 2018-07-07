@@ -9,39 +9,42 @@ const parseToFn = function (fnOrBool) {
 function initVisibilities(visibilities = {}) {
     const returnVisibilities = {};
     Object.keys(visibilities).forEach(key => {
+        if(key.startsWith('_'))
+            return;
         returnVisibilities[key] = parseToFn(visibilities[key]);
     });
-
     return returnVisibilities;
 }
 
-export default function featuretoggleapi(rawVisibilities,config={}) {
+export default function featuretoggleapi(config={}) {
 
     const globals = {
         datas: {},
-        listeners: [],
-        visibilities: initVisibilities(rawVisibilities),
+        listeners: {},
+        visibilities: initVisibilities(config),
         showLogs: false,
         globalScope: {}
     }
 
     function init(api){
         if(typeof window !== undefined){
-            globals.globalScope = window;
+            globals.globalScope = config._globalScope || window;
         }
         
-        if(config.plugins)
+        if(config._plugins)
         {
-            if(!Array.isArray(config.plugins))
+            if(!Array.isArray(config._plugins))
                 throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
             
-            config.plugins.forEach(plugin =>{
+            config._plugins.forEach(plugin =>{
                 if(typeof plugin !== 'function')
                     throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
                 
                 addPlugin(plugin,api);
             });
         }
+
+        triggerEvent('init');
     }
 
     function addPlugin(plugin,api)
@@ -49,13 +52,9 @@ export default function featuretoggleapi(rawVisibilities,config={}) {
         plugin(api,globals.globalScope);
     }
 
-    function executeListener(event) {
-        globals.listeners.forEach(listener => {
-            listener(event);
-
-            //zeige die logs an
-            if(global.showLogs)
-                api.isVisible(event.name,event.variant,event.data);
+    function triggerEvent(eventtype,param) {
+        (globals.listeners[eventtype] || []).forEach(listener => {
+            listener(param);
         });
     }
 
@@ -259,14 +258,11 @@ export default function featuretoggleapi(rawVisibilities,config={}) {
 
             globals.datas[event.key] = event.data;
 
-            executeListener(event);
+            triggerEvent('visibilityrule',event);
         },
         on: function (eventtype, fn, config) {
-            const validEventTypes = ['visibilityrule'];
-            if (validEventTypes.indexOf(eventtype.toLowerCase()) == -1)
-                throw new Error('Eventtype "' + eventtype.toLowerCase() + '" does not exist. Only "visibilityrule" is valid');
-
-            globals.listeners.push(fn);
+            globals.listeners[eventtype] = globals.listeners[eventtype] || [];
+            globals.listeners[eventtype].push(fn);
 
             if (config != undefined && config.ignorePreviousRules)
                 return;
@@ -278,6 +274,7 @@ export default function featuretoggleapi(rawVisibilities,config={}) {
                 fn(event);
             });
         },
+        triggerEvent,
         showLogs: function (showLogs) {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
@@ -295,7 +292,7 @@ export default function featuretoggleapi(rawVisibilities,config={}) {
             globals.visibilities[event.key] = event.visibilityFunction;
             globals.datas[event.key] = event.data;
 
-            executeListener(event);
+            triggerEvent('visibilityrule',event);
         },
         requiredVisibility: function (fn) {
             if (typeof fn != "function")

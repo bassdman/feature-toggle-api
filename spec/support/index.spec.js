@@ -186,14 +186,7 @@ describe("Listener", function () {
 
         });
     });
-    it("should throw an error for an invalid eventname", function () {
-        var addInvalidEvent = function () {
-            api.on('changexxx', function () {
 
-            })
-        };
-        expect(addInvalidEvent).toThrow();
-    });
     it("should access function twice for two initial eventnames", function () {
         var listenedEvents = [];
 
@@ -254,25 +247,26 @@ describe("Listener", function () {
         api.setData('feature2','newgruempfel2');
         expect(totalData).toBe('gruempfel,newgruempfel,gruempfel2,newgruempfel2,');
     });
+
+    it("should trigger a custom defined event", function () {
+        var api = new featureToggleApi();
+
+        let customEvent = false;
+        api.on('customevent', function (param) {
+            customEvent = param;
+        });
+
+        api.triggerEvent('customevent','fired');
+        expect(customEvent).toBe('fired');
+    });
 });
 
 describe("Plugins", function () {
-    const api = new featureToggleApi();
 
     it("function addPlugin should exist", function () {
         var api = new featureToggleApi();
         
         expect(api.addPlugin).not.toBe(null);
-
-    
-     /*   var apix = require('./dist/feature-toggle-api.js').default;
-        var urlplugin = require('./plugins/urlplugin');
-        const api = apix();
-        api.addPlugin(urlplugin())
-
-        console.log(api.newFn());
-
-        html-plugin, url-plugin*/
     });
 
     it("should add attribute 'newplugin' to the api", function () {
@@ -290,11 +284,22 @@ describe("Plugins", function () {
             api.newplugin = true;
         }
 
-        var api = new featureToggleApi({},{plugins: [newPlugin]});
+        var api = new featureToggleApi({_plugins: [newPlugin]});
 
         expect(api.newplugin).toBe(true);
+        expect(api.isVisible('_plugin')).toBe(false);
     });
 
+    it("should trigger the init-event", function () {
+        function newPlugin(api){
+            api.on('init',function(){
+                api.initTriggered = true;
+            })
+        }
+
+        var api = new featureToggleApi({_plugins: [newPlugin]});
+        expect(api.initTriggered).toBe(true);
+    });
          /*   var apix = require('./dist/feature-toggle-api.js').default;
         var urlplugin = require('./plugins/urlplugin');
         const api = apix();
