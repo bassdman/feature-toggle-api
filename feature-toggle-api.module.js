@@ -1,68 +1,69 @@
 'use strict';
 
-const parseToFn = function (fnOrBool) {
-    if (typeof fnOrBool == 'boolean')
-        return function () { return fnOrBool };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var parseToFn = function parseToFn(fnOrBool) {
+    if (typeof fnOrBool == 'boolean') return function () {
+        return fnOrBool;
+    };
 
     return fnOrBool;
 };
 
-function initVisibilities(visibilities = {}) {
-    const returnVisibilities = {};
-    Object.keys(visibilities).forEach(key => {
-        if(key.startsWith('_'))
-            return;
+function initVisibilities() {
+    var visibilities = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    var returnVisibilities = {};
+    Object.keys(visibilities).forEach(function (key) {
+        if (key.startsWith('_')) return;
         returnVisibilities[key] = parseToFn(visibilities[key]);
     });
     return returnVisibilities;
 }
 
-function featuretoggleapi(config={}) {
+function featuretoggleapi() {
+    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    const globals = {
+
+    var globals = {
         datas: {},
         listeners: {},
         visibilities: initVisibilities(config),
         showLogs: false,
-        usedPlugins: [],
+        usedPlugins: []
     };
 
-    function init(api){        
-        if(config._plugins)
-        {
-            if(!Array.isArray(config._plugins))
-                throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
-            
-            config._plugins.forEach(plugin =>{
-                if(typeof plugin !== 'function')
-                    throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
-                
-                addPlugin(plugin,api);
+    function init(api) {
+        if (config._plugins) {
+            if (!Array.isArray(config._plugins)) throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
+
+            config._plugins.forEach(function (plugin) {
+                if (typeof plugin !== 'function') throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + (typeof plugin === 'undefined' ? 'undefined' : _typeof(plugin)) + '.');
+
+                _addPlugin(plugin, api);
             });
         }
 
         triggerEvent('init');
     }
 
-    function addPlugin(plugin,api)
-    {
+    function _addPlugin(plugin, api) {
         plugin(api);
     }
 
-    function triggerEvent(eventtype,param) {
-        (globals.listeners[eventtype] || []).forEach(listener => {
+    function triggerEvent(eventtype, param) {
+        (globals.listeners[eventtype] || []).forEach(function (listener) {
             listener(param);
         });
     }
 
-    const log = function (message) {
-        if (!globals.showLogs)
-            return;
+    var log = function log(message) {
+        if (!globals.showLogs) return;
 
         //Nur Browser können Syntaxhighlighting die anderen geben die Nachricht einfach aus und schneiden
         //die styletags raus
         if (typeof window === 'undefined') {
-            const loggedMessage = message.replace(/<b>/g, "");
+            var loggedMessage = message.replace(/<b>/g, "");
             console.log(loggedMessage);
             return;
         }
@@ -74,28 +75,21 @@ function featuretoggleapi(config={}) {
         var _message = message.replace('visible', '%cvisible');
         _message = _message.replace('hidden', '%chidden');
 
-        if (hasVisibleKeyword)
-            console.log(_message, "color:green;font-weight:bold;");
-        else if (hasHiddenKeyword)
-            console.log(_message, "color:red;font-weight:bold;");
-        else if (hasBoldTag) {
+        if (hasVisibleKeyword) console.log(_message, "color:green;font-weight:bold;");else if (hasHiddenKeyword) console.log(_message, "color:red;font-weight:bold;");else if (hasBoldTag) {
             _message = _message.replace('<b>', '%c');
             var parts = [_message, 'font-weight:bold;'];
             console.log.apply(null, parts);
-        }
-        else
-            console.log(message);
+        } else console.log(message);
     };
 
-    const logAndReturn = function (returnValue, message) {
+    var logAndReturn = function logAndReturn(returnValue, message) {
         log(message);
         log('');
         return returnValue;
     };
 
-    const getVisibility = function (visibilityFn, functionname, name, variant, data) {
-        if (visibilityFn == null)
-            return undefined;
+    var getVisibility = function getVisibility(visibilityFn, functionname, name, variant, data) {
+        if (visibilityFn == null) return undefined;
 
         var calculatedVisibility = visibilityFn({ name: name, variant: variant, data: data });
 
@@ -103,7 +97,7 @@ function featuretoggleapi(config={}) {
             return calculatedVisibility;
         }
 
-        return logAndReturn(false, `The ${functionname} returns ${calculatedVisibility}. => Please return true or false. This result (and all non-boolean results) will return false.`);
+        return logAndReturn(false, 'The ' + functionname + ' returns ' + calculatedVisibility + '. => Please return true or false. This result (and all non-boolean results) will return false.');
     };
 
     function getKey(name, variant) {
@@ -115,12 +109,12 @@ function featuretoggleapi(config={}) {
         return _name;
     }
     function parseKey(key) {
-        const parts = key.split('#');
+        var parts = key.split('#');
         return {
             name: parts[0],
             variant: parts.length > 1 ? parts[1] : undefined,
-            data: globals.datas[key],
-        }
+            data: globals.datas[key]
+        };
     }
 
     /*
@@ -137,64 +131,59 @@ function featuretoggleapi(config={}) {
     */
     function visibilityFnParams(param1, param2, param3, param4) {
         //name must always be set
-        if (param1 == undefined)
-            throw new Error('feature.visibility(): 1st parameter name must be defined');
+        if (param1 == undefined) throw new Error('feature.visibility(): 1st parameter name must be defined');
 
-        if (arguments.length == 1)
-            throw new Error('feature.visibility(): 2nd parameter name must be a boolean or function, but is empty');
+        if (arguments.length == 1) throw new Error('feature.visibility(): 2nd parameter name must be a boolean or function, but is empty');
 
-        let name = param1, variant = null, data = null, result = null;
+        var name = param1,
+            variant = null,
+            data = null,
+            result = null;
         if (param3 == undefined && param4 == undefined) {
             result = param2;
-        }
-        else if (param4 == undefined) {
+        } else if (param4 == undefined) {
             variant = param2;
             result = param3;
-        }
-        else {
+        } else {
             variant = param2;
             data = param3;
             result = param4;
         }
 
         return {
-            name,
-            variant,
-            data,
-            result
-        }
+            name: name,
+            variant: variant,
+            data: data,
+            result: result
+        };
     }
 
     function getEvent(name, variant, data, result) {
 
-        let event;
+        var event = void 0;
 
         event = { name: name, variant: variant, data: data };
 
         event.key = getKey(event.name, event.variant);
 
-        if (result == null)
-            return event;
+        if (result == null) return event;
 
         event.visibilityFunction = parseToFn(result);
-        event.result = event.visibilityFunction({ 
-            name: event.name, 
-            variant: event.variant, 
-            data: event.data, 
+        event.result = event.visibilityFunction({
+            name: event.name,
+            variant: event.variant,
+            data: event.data,
             _internalCall: true,
-            description:  'When attaching a function, the result must be calculated internally. You can filter this out with the _internalCall:true -Flag.'
+            description: 'When attaching a function, the result must be calculated internally. You can filter this out with the _internalCall:true -Flag.'
         });
         return event;
     }
 
-
-
     function isVisible(name, variant, data) {
-        const visibilities = globals.visibilities;
+        var visibilities = globals.visibilities;
 
-        log(`\nCheck Visibility of <b>Feature "${name}", variant "${variant == undefined ? '' : variant}"${data ? " with data " + JSON.stringify(data) : ""}.`);
-        if (name == undefined)
-            throw new Error('The attribute "name" is required for tag <feature></feature>. Example: <feature name="aname"></feature>');
+        log('\nCheck Visibility of <b>Feature "' + name + '", variant "' + (variant == undefined ? '' : variant) + '"' + (data ? " with data " + JSON.stringify(data) : "") + '.');
+        if (name == undefined) throw new Error('The attribute "name" is required for tag <feature></feature>. Example: <feature name="aname"></feature>');
 
         var requiredFn = visibilities['_required'];
         var requiredFnExists = visibilities['_required'] != null;
@@ -214,104 +203,87 @@ function featuretoggleapi(config={}) {
         var defaultFnExists = visibilities['_default'] != null;
         var defaultFnResult = getVisibility(defaultFn, 'defaultVisibility', name, variant, data);
 
-        if (!requiredFnExists)
-            log("No requiredVisibility rule specified for this feature.");
-        else if (requiredFnExists && requiredFnResult === true)
-            log("The requiredVisibility rule returns true. This feature will be shown when no other rule rejects it.");
-        else if (requiredFnExists && requiredFnResult === false)
-            return logAndReturn(false, "The requiredVisibility rule returns false. This feature will be hidden.");
+        if (!requiredFnExists) log("No requiredVisibility rule specified for this feature.");else if (requiredFnExists && requiredFnResult === true) log("The requiredVisibility rule returns true. This feature will be shown when no other rule rejects it.");else if (requiredFnExists && requiredFnResult === false) return logAndReturn(false, "The requiredVisibility rule returns false. This feature will be hidden.");
 
-        if (visibilityFnExists)
-            return logAndReturn(visibilityFnResult, `The visibility rule returns ${visibilityFnResult}. This feature will be ${visibilityFnResult ? 'visible' : 'hidden'}.`);
+        if (visibilityFnExists) return logAndReturn(visibilityFnResult, 'The visibility rule returns ' + visibilityFnResult + '. This feature will be ' + (visibilityFnResult ? 'visible' : 'hidden') + '.');
         log('No visibility rule found matching name and variant.');
 
-        if (variantExists && typeof visibilityOnlyNameFnResult == 'boolean')
-            return logAndReturn(visibilityOnlyNameFnResult, `Found a visibility rule for name ${name} without variants. The rule returns ${visibilityOnlyNameFnResult}. => This feature will be ${visibilityOnlyNameFnResult ? 'visible' : 'hidden'}.`);
-        else if (variantExists)
-            log(`No rules found for name ${name} without variants.`);
+        if (variantExists && typeof visibilityOnlyNameFnResult == 'boolean') return logAndReturn(visibilityOnlyNameFnResult, 'Found a visibility rule for name ' + name + ' without variants. The rule returns ' + visibilityOnlyNameFnResult + '. => This feature will be ' + (visibilityOnlyNameFnResult ? 'visible' : 'hidden') + '.');else if (variantExists) log('No rules found for name ' + name + ' without variants.');
 
+        if (defaultFnExists) return logAndReturn(defaultFnResult, 'Found a defaultVisibility rule. The rule returns ' + defaultFnResult + '. => This feature will be ' + (defaultFnResult ? 'visible' : 'hidden') + '.');
+        log('No default rule found.');
 
-        if (defaultFnExists)
-            return logAndReturn(defaultFnResult, `Found a defaultVisibility rule. The rule returns ${defaultFnResult}. => This feature will be ${defaultFnResult ? 'visible' : 'hidden'}.`);
-        log(`No default rule found.`);
-
-        if (requiredFnExists)
-            return logAndReturn(true, `Only the requiredVisibility rule was found. This returned true. => This feature will be visible.`);
+        if (requiredFnExists) return logAndReturn(true, 'Only the requiredVisibility rule was found. This returned true. => This feature will be visible.');
 
         return logAndReturn(false, 'No rules were found. This feature will be hidden.');
     }
 
-    const api = {
+    var api = {
         name: 'feature-toggle-api',
-        setData: function (nameParam, variantOrDataParam, dataParam) {
-            if (nameParam == undefined)
-                throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
+        setData: function setData(nameParam, variantOrDataParam, dataParam) {
+            if (nameParam == undefined) throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
 
-            const variant = dataParam != undefined ? variantOrDataParam : undefined;
-            const data = dataParam || variantOrDataParam;
+            var variant = dataParam != undefined ? variantOrDataParam : undefined;
+            var data = dataParam || variantOrDataParam;
 
-            const event = getEvent(nameParam, variant, data);
+            var event = getEvent(nameParam, variant, data);
 
             globals.datas[event.key] = event.data;
 
-            triggerEvent('visibilityrule',event);
+            triggerEvent('visibilityrule', event);
         },
-        on: function (eventtype, fn, config) {
+        on: function on(eventtype, fn, config) {
             globals.listeners[eventtype] = globals.listeners[eventtype] || [];
             globals.listeners[eventtype].push(fn);
 
-            triggerEvent('registerEvent',{
+            triggerEvent('registerEvent', {
                 type: eventtype
             });
-            if (config != undefined && config.ignorePreviousRules)
-                return;
+            if (config != undefined && config.ignorePreviousRules) return;
 
-            Object.keys(globals.visibilities).forEach(key => {
-                const event = parseKey(key, globals);
-                const rule = globals.visibilities[key];
+            Object.keys(globals.visibilities).forEach(function (key) {
+                var event = parseKey(key, globals);
+                var rule = globals.visibilities[key];
                 event.result = rule(event.name, event.variant, event.data);
                 fn(event);
             });
         },
         trigger: triggerEvent,
-        showLogs: function (showLogs) {
-            globals.showLogs = showLogs == undefined ? true : showLogs;
+        showLogs: function showLogs(_showLogs) {
+            globals.showLogs = _showLogs == undefined ? true : _showLogs;
         },
-        isVisible,
+        isVisible: isVisible,
         /*
             the following function calls are possible:
             visibility(name,result);
             visibility(name,variant,result);
             visibility(name,variant,data,result);
         */
-        visibility: function (param1, param2, param3, param4) {
-            const params = visibilityFnParams(param1, param2, param3, param4);
-            const event = getEvent(params.name, params.variant, params.data, params.result);
+        visibility: function visibility(param1, param2, param3, param4) {
+            var params = visibilityFnParams(param1, param2, param3, param4);
+            var event = getEvent(params.name, params.variant, params.data, params.result);
 
             globals.visibilities[event.key] = event.visibilityFunction;
             globals.datas[event.key] = event.data;
 
-            triggerEvent('visibilityrule',event);
+            triggerEvent('visibilityrule', event);
         },
-        requiredVisibility: function (fn) {
-            if (typeof fn != "function")
-                throw new Error('feature.requiredVisibility(): 1st parameter must be a function, but is ' + typeof fn);
+        requiredVisibility: function requiredVisibility(fn) {
+            if (typeof fn != "function") throw new Error('feature.requiredVisibility(): 1st parameter must be a function, but is ' + (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)));
 
             globals.visibilities['_required'] = parseToFn(fn);
         },
-        defaultVisibility: function (fn) {
-            if (typeof fn != "function")
-                throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + typeof fn);
+        defaultVisibility: function defaultVisibility(fn) {
+            if (typeof fn != "function") throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + (typeof fn === 'undefined' ? 'undefined' : _typeof(fn)));
 
             globals.visibilities['_default'] = parseToFn(fn);
         },
-        addPlugin: function(plugin){
-            if(globals.usedPlugins.includes(plugin))
-                return;
-            
-            addPlugin(plugin,api);  
+        addPlugin: function addPlugin(plugin) {
+            if (globals.usedPlugins.includes(plugin)) return;
+
+            _addPlugin(plugin, api);
             globals.usedPlugins.push(plugin);
-        },
+        }
     };
     init(api);
     return api;
