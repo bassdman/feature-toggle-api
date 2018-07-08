@@ -9,5 +9,7 @@ module.exports = function () {
             var elements = document.querySelectorAll(selector);
             elements.forEach(elem => { elem.style.display = event.result ? 'block' : none });
         })
+
+        return {name: 'htmlplugin'};
     }
 }

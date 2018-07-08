@@ -4,11 +4,6 @@ const concat = require('gulp-concat');
 const uglify = require('gulp-uglify');
 const babel = require('gulp-babel');
 
-gulp.task('build', function(){
-    return gulp.src('src/*.js')
-        .pipe(gulp.dest('dist/index.js'));
-})
-
 gulp.task('build_raw', function(){
     return gulp.src('src/index.js')
   //      .pipe(sourcemaps.init())
@@ -17,7 +12,7 @@ gulp.task('build_raw', function(){
         }))
         .pipe(concat('feature-toggle-api.js'))
    //     .pipe(sourcemaps.write())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest(''));
 })
 
 gulp.task('build_min', function(){
@@ -29,7 +24,19 @@ gulp.task('build_min', function(){
         .pipe(uglify())
         .pipe(concat('feature-toggle-api.min.js'))
     //    .pipe(sourcemaps.write())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest(''));
 })
 
-gulp.task('build',['build_raw','build_min']);
+gulp.task('build_plugins', function(){
+    return gulp.src(['src/plugins/htmlplugin/plugin-html.js','src/plugins/urlplugin/plugin-url.js'])
+     //   .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(uglify())
+        //.pipe(concat('feature-toggle-api.min.js'))
+    //    .pipe(sourcemaps.write())
+        .pipe(gulp.dest(''));
+})
+
+gulp.task('build',['build_raw','build_min','build_plugins']);

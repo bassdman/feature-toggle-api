@@ -23,14 +23,10 @@ export default function featuretoggleapi(config={}) {
         listeners: {},
         visibilities: initVisibilities(config),
         showLogs: false,
-        globalScope: {}
+        usedPlugins: [],
     }
 
-    function init(api){
-        if(typeof window !== undefined){
-            globals.globalScope = config._globalScope || window;
-        }
-        
+    function init(api){        
         if(config._plugins)
         {
             if(!Array.isArray(config._plugins))
@@ -49,7 +45,7 @@ export default function featuretoggleapi(config={}) {
 
     function addPlugin(plugin,api)
     {
-        plugin(api,globals.globalScope);
+        plugin(api);
     }
 
     function triggerEvent(eventtype,param) {
@@ -264,6 +260,9 @@ export default function featuretoggleapi(config={}) {
             globals.listeners[eventtype] = globals.listeners[eventtype] || [];
             globals.listeners[eventtype].push(fn);
 
+            triggerEvent('registerEvent',{
+                type: eventtype
+            })
             if (config != undefined && config.ignorePreviousRules)
                 return;
 
@@ -274,7 +273,7 @@ export default function featuretoggleapi(config={}) {
                 fn(event);
             });
         },
-        triggerEvent,
+        trigger: triggerEvent,
         showLogs: function (showLogs) {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
@@ -307,7 +306,11 @@ export default function featuretoggleapi(config={}) {
             globals.visibilities['_default'] = parseToFn(fn);
         },
         addPlugin: function(plugin){
-            addPlugin(plugin,this);
+            if(globals.usedPlugins.includes(plugin))
+                return;
+            
+            addPlugin(plugin,api);  
+            globals.usedPlugins.push(plugin);
         },
     };
     init(api);

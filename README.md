@@ -63,7 +63,7 @@ You want to include it as a scripttag? Here's a sample HTML-File.
     <meta charset="UTF-8">
     <title>Basic Feature-Toggle-API-Test</title>
     <script>/*Quickhack to handle es-modules in Browser*/ var exports = {};</script>
-    <script src="../dist/feature-toggle-api.min.js"></script>
+    <script src="../feature-toggle-api.min.js"></script>
 </head>
 <body>
     <div class="feature1">This is text from feature1</div>
@@ -116,6 +116,17 @@ api.visibility('feature4',true);
 api.visibility('feature4','new',false);
 //only possible via functioncall: pass some data; maybe necessary in the listener
 api.visibility('feature4','new',"some custom data",false);
+```
+
+Important: A visibilityrule mustn't start with "_". Attributes starting with "_" are reserved for configuration settings.
+```javascript
+//This api has already initialized some visiblity rules:
+var api = new featuretoggleapi({
+    feature1: true,  //visibilityrule feature1 -> true
+    plugins: true,   //visibilityrule plugins -> true
+    _feature1: true, //_ is reserved for configuration -> this attribute does nothing
+    _plugins: [],    //_ is reserved for configuration -> add plugins
+});
 ```
 
 ### Features
@@ -298,6 +309,92 @@ If you want to 'watch' every initialisation of a visibility rule, you can append
     })
 ```
 
+You can also add custom events and trigger them whenever you want.
+```javascript
+    var api = new featureToggleApi();
+    api.on('customevent', function (param) {
+        console.log("customevent " + param);
+    });
+
+    api.trigger('customevent','fired');
+    //logs "customevent fired"
+```
+
+#### Plugins
+You can add more functionality to the feature-toggle-api with plugins. Imagine you want an api that watches url-parameters - then you can add a plugin that implemented this logic. Or (if it does not exist) write a custom one.
+
+##### Use existing plugins
+The feature toggle api already implemented some Plugins that can be used without installing other packages.
+Some plugins are included within this package:
+
+###### HTML-Plugin
+You can use the api with <feature> tags
+```javascript
+    var featuretoggleapi = require('feature-toggle-api');
+    var htmlplugin = require('feature-toggle-api/plugin-html');
+    var api = new featuretoggleapi({feature1:true});
+    api.addPlugin(htmlplugin);
+```
+```html
+    <feature name="feature1">
+        <!-- Will be shown because feature1 is visible -->
+    </feature>
+```
+[More information about this plugin you can find here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
+
+###### URL-Plugin
+The api sets the features according to the url-parameters.
+```javascript
+    //imagine the url https://anydomain.de?feature1=true&feature2=false
+    var featuretoggleapi = require('feature-toggle-api');
+    var urlplugin = require('feature-toggle-api/plugin-url');
+    var api = new featuretoggleapi();
+    api.addPlugin(urlplugin);
+
+    //will have visibilityrules {feature1: true, feature2: false} activated
+```
+[More information about this plugin you can find here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
+
+
+##### Write a custom plugin
+A plugin is just a function with two parameters. You can add it with the .addPlugin()-Function.
+Calling addPlugin() prevents you from from adding a plugin multiple times, so if you do this, the plugin will only be executed once. 
+```javascript
+    function customFunctionPlugin(api){
+        //adds function customFunction to your api
+        api.customFunction = function(){console.log('custom function created')}
+    }
+    
+    //1st option: via constructor
+    //Important: don't forget the _ in the property _plugins!!!
+    const api = featuretoggleapi({_plugins:[customFunctionPlugin]});
+
+    //2nd option: via function
+    api.addPlugin(customFunctionPlugin);
+
+    //-> now api.pluginWithParams() logs "custom function created"
+```
+
+Here's the way, how to add config to your plugin
+```javascript
+    function pluginWithParams(param1)
+    {
+        return function (api){
+            //adds function customFunction to your api
+            api.customFunction = function(){console.log('Hello ' + param1)}
+        }
+    }
+
+    //1st option: via constructor
+    //Important: don't forget the _ in the property _plugins!!!
+    const api = featuretoggleapi({_plugins:[pluginWithParams('Peter')]});
+
+    //2nd option: via function
+    api.addPlugin(pluginWithParams('Peter'));
+
+    //-> now api.pluginWithParams() logs "Hello Peter"
+```
+
 #### ShowLogs
 Imagine this following html-snippet:
 ```javascript
@@ -324,6 +421,21 @@ With this you don't have to waste your time with debugging the visibility state.
 
 
 ## API-Description
+### Constructor
+ - 1 paramter; must be an object; optional;
+ - all parameters _not_ starting with an _ are visibilityrules
+ - all parameters starting with an _ are _not_ visibilityrules, but configuration for the api
+ - possible configuration settings:
+    - _plugins: Adds a plugin; Array of functions; optional
+
+```javascript
+//initializes a visibilityrule and adds a plugin
+var api = new featuretoggleapi({
+    feature1: true,
+    _plugins: []
+})
+```
+
 ### Visibility
 Adds a visibility rule.
 
@@ -383,7 +495,7 @@ api.isVisible(name,variant,data);
 A listener that is executed, everytime a function visibility rule is added or changed. Is also executed for rules that are passed via constructor.
 
 Parameters:
- - eventname: name of event; required; type string; currently only 'visibilityrule' is allowed
+ - eventname: name of event; required; type string; 
  - eventfunction: function that is executed when a rule changes; required; type function
 
 Events:
@@ -402,6 +514,23 @@ api.on('visibilityrule', function (event) {
         event.result
     */
 })
+```
+
+### trigger
+triggers an Event
+Parameters:
+ - eventname: name of event; required; type string; 
+ - parameter: optional; will be passed to the event as 1st parameter
+
+Returns
+    Nothing
+
+```javascript
+api.on('eventname', function (event) {
+    console.log('doSth');
+})
+api.trigger('eventname'); //triggers event eventname
+api.trigger('eventname','parameter');
 ```
 
 ### setData
@@ -463,11 +592,24 @@ api.defaultVisibility(function(rule){
 });
 ```
 
+### addPlugin
+Adds a plugin to the api. A plugin will only be executed once, even if the function is called multiple times.
+
+Parameters: 
+ - plugin: required -> adds a plugin to the api
+
+Returns:
+ - nothing
+
+```javascript
+api.addPlugin(plugin);
+```
+
 ### showLogs
 Shows the Logs of a visibilityrule when function is called or listener is triggered.
 
 Parameters:
- - showLogs: are should logs be shown or not?; optional; type boolean; default: true
+ - showLogs: should logs be shown or not?; optional; type boolean; default: true
 
 Returns
     nothing

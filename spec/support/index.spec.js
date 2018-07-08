@@ -1,4 +1,4 @@
-const featureToggleApi = require('../../dist/feature-toggle-api.js').default;
+const featureToggleApi = require('../../feature-toggle-api.js').default;
 
 describe("Initialisation / Basic Tests", function () {
     it("should return a function", function () {
@@ -256,7 +256,7 @@ describe("Listener", function () {
             customEvent = param;
         });
 
-        api.triggerEvent('customevent','fired');
+        api.trigger('customevent','fired');
         expect(customEvent).toBe('fired');
     });
 });
@@ -288,6 +288,18 @@ describe("Plugins", function () {
 
         expect(api.newplugin).toBe(true);
         expect(api.isVisible('_plugin')).toBe(false);
+    });
+
+    it("should only be executed once", function () {
+        var api = new featureToggleApi();
+        api.count = 0;
+        function countPlugin(api){
+            api.count += 1;
+        }
+
+        api.addPlugin(countPlugin);
+        api.addPlugin(countPlugin);
+        expect(api.count).toBe(1);
     });
 
     it("should trigger the init-event", function () {

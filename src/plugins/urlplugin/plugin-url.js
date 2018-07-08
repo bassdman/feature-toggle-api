@@ -23,6 +23,8 @@ module.exports = function (config={}) {
             const totalKey = prefix+key;
             api.visibility(totalKey,urlparams[key]);
         });
+
+        return {name: 'urlplugin'};
     }
 
 }
