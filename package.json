@@ -1,11 +1,11 @@
 {
   "name": "feature-toggle-api",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Gives you advanced feature-toggle for any Framework",
-  "main": "src/index.js",
-  "scripts": { 
+  "main": "feature-toggle-api.module.js",
+  "scripts": {
     "pretest": "gulp build",
-    "test": "jasmine" 
+    "test": "jasmine"
   },
   "author": "Manuel Gelsen",
   "license": "MIT",
@@ -24,6 +24,7 @@
     "gulp-babel": "^7.0.1",
     "gulp-concat": "^2.6.1",
     "gulp-minify": "^2.1.0",
+    "gulp-rollup": "^2.16.2",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-uglify": "^3.0.0",
     "jasmine": "^3.1.0"

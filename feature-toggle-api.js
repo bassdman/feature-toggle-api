@@ -1,12 +1,6 @@
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.default = featuretoggleapi;
 
 var parseToFn = function parseToFn(fnOrBool) {
     if (typeof fnOrBool == 'boolean') return function () {
@@ -203,7 +197,6 @@ function featuretoggleapi() {
         var variantExists = variant != null;
         var visibilityOnlyNameFnKey = getKey(name, null);
         var visibilityOnlyNameFn = visibilities[visibilityOnlyNameFnKey];
-        var visibilityOnlyNameFnExists = visibilities[visibilityOnlyNameFnKey] != null;
         var visibilityOnlyNameFnResult = getVisibility(visibilityOnlyNameFn, 'visibility function (only name)', name, variant, data);
 
         var defaultFn = visibilities['_default'];
@@ -295,3 +288,9 @@ function featuretoggleapi() {
     init(api);
     return api;
 }
+
+/*
+    This is required to create the scripts feature-toggle-api.js and feature-toggle-api.min.js
+    - the scripts that can be used in the brower. 
+ */
+window.featureToggleApi = featuretoggleapi;
