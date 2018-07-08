@@ -118,7 +118,7 @@ api.visibility('feature4','new',false);
 api.visibility('feature4','new',"some custom data",false);
 ```
 
-Important: A visibilityrule mustn't start with "_". Attributes starting with "_" are reserved for configuration settings.
+Important: A visibilityrule mustn't start with an underscore. Attributes starting with an underscore are reserved for configuration settings.
 ```javascript
 //This api has already initialized some visiblity rules:
 var api = new featuretoggleapi({
@@ -309,7 +309,7 @@ If you want to 'watch' every initialisation of a visibility rule, you can append
     })
 ```
 
-You can also add custom events and trigger them whenever you want.
+You can also add custom events and triggers whenever you want.
 ```javascript
     var api = new featureToggleApi();
     api.on('customevent', function (param) {
