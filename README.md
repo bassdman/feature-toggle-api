@@ -62,7 +62,6 @@ You want to include it as a scripttag? Here's a sample HTML-File.
 <head>
     <meta charset="UTF-8">
     <title>Basic Feature-Toggle-API-Test</title>
-    <script>/*Quickhack to handle es-modules in Browser*/ var exports = {};</script>
     <script src="../feature-toggle-api.min.js"></script>
 </head>
 <body>
@@ -84,7 +83,7 @@ You want to include it as a scripttag? Here's a sample HTML-File.
 ```
 You have a node-module? Nothing is easier then that:
 ``` javascript
-var featuretoggleapi = require('feature-toggle-api').default;
+var featuretoggleapi = require('feature-toggle-api');
 var api = featuretoggleapi({
     feature1: true
 });

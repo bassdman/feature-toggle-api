@@ -15,6 +15,9 @@ gulp.task('build_module', function(){
                 format: 'cjs'
             }
         }))
+        .pipe(babel({
+            presets: ['env']
+        }))
         .pipe(concat('feature-toggle-api.module.js'))
    //     .pipe(sourcemaps.write())
         .pipe(gulp.dest(''));
