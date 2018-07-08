@@ -1,8 +1,8 @@
 {
   "name": "feature-toggle-api",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "Gives you advanced feature-toggle for any Framework",
-  "main": "dist/feature-toggle-api.min.js",
+  "main": "feature-toggle-api.min.js",
   "scripts": { 
     "pretest": "gulp build",
     "test": "jasmine" 
