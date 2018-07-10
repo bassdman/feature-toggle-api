@@ -327,6 +327,7 @@ The feature toggle api already implemented some Plugins that can be used without
 Some plugins are included within this package:
 
 ###### HTML-Plugin
+(Attention: Is in beta version - I didn't didn't have the time to test it yet) 
 You can use the api with <feature> tags
 ```javascript
     var featuretoggleapi = require('feature-toggle-api');
@@ -342,6 +343,7 @@ You can use the api with <feature> tags
 [More information about this plugin you can find here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
 
 ###### URL-Plugin
+(Attention: Is in beta version - I didn't didn't have the time to test it yet) 
 The api sets the features according to the url-parameters.
 ```javascript
     //imagine the url https://anydomain.de?feature1=true&feature2=false
@@ -356,7 +358,7 @@ The api sets the features according to the url-parameters.
 
 
 ##### Write a custom plugin
-A plugin is just a function with two parameters. You can add it with the .addPlugin()-Function.
+A plugin is just a function with a parameter. You can add it with the .addPlugin()-Function.
 Calling addPlugin() prevents you from from adding a plugin multiple times, so if you do this, the plugin will only be executed once. 
 ```javascript
     function customFunctionPlugin(api){
@@ -371,10 +373,10 @@ Calling addPlugin() prevents you from from adding a plugin multiple times, so if
     //2nd option: via function
     api.addPlugin(customFunctionPlugin);
 
-    //-> now api.pluginWithParams() logs "custom function created"
+    //-> now api.customFunction() logs "custom function created"
 ```
 
-Here's the way, how to add config to your plugin
+Here's the way, how to add parameters to your plugin
 ```javascript
     function pluginWithParams(param1)
     {
@@ -391,7 +393,7 @@ Here's the way, how to add config to your plugin
     //2nd option: via function
     api.addPlugin(pluginWithParams('Peter'));
 
-    //-> now api.pluginWithParams() logs "Hello Peter"
+    //-> now api.customFunction() logs "Hello Peter"
 ```
 
 #### ShowLogs
