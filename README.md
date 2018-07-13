@@ -42,7 +42,7 @@ But that's not the point. The problem is: The view-logic is spread in .html and 
 That's not good.
 
 ## The solution
-Feature-toggle. All View-Logic is placed in one place. This can be a config file, a webservice or a tool with a User Interface.a
+Feature-toggle. All View-Logic is placed in one place. This can be a config file, a webservice or a tool with a User Interface.
 When you want to change a visibility rule, for example "Show feature XYZ also in the french shop", you just have to update the config or add this info in an UI. And no developer is needed for it.
 
 <a href="https://martinfowler.com/articles/feature-toggles.html">Read the article from Martin Fowler about feature toggle for a better understanding.</a>
@@ -129,7 +129,7 @@ var api = new featuretoggleapi({
 ```
 
 ### Features
-For the next examples we will imagine, the properties are mapped to the visibility rules.
+For the next examples we will imagine, the properties are mapped to the visibility rules. (Btw, the [html-plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md) does this for you ;)
 ```html
 <div id="app">
     <!-- Just imagine, the properties are matched to the visibility rules -->
@@ -215,7 +215,7 @@ You already want to initialize it in the constructor? No Problem.
 ```
 
 #### Required Visibility
-This rule is allways executed, before the other rules. When it returns false, the other rules are ignored.
+This rule is always executed, before the other rules. When it returns false, the other rules are ignored.
 ``` javascript
 /*
    Imagine a config that is loaded via ajax. When the name is in the config, it returns true.
@@ -276,7 +276,7 @@ var isVisible_data_onlyname = feature.isVisible('feature2',null,'grumpfl');
 ```
 
 #### Function setData
-if you want to update the data without update the whole visibilityrule, use the setData-Function.
+if you want to update the data without updating the whole visibilityrule, use the setData-Function.
 ```javascript
     api.setData('featurename','variantname','anydata'); //will set the data for featurename#variantnam -> anydata
     //or
@@ -284,8 +284,8 @@ if you want to update the data without update the whole visibilityrule, use the 
 
     //api.setData() calls the listener.
     api.on('visibilityrule', function (rule) {
-            console.log(rule.data); 
-        });
+        console.log(rule.data); 
+    });
 
     api.visibility('feature', 'variant','gruempfel',true); // logs 'gruempfel'
     api.setData('feature','variant','newgruempfel');  // logs 'newgruempfel'
