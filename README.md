@@ -621,37 +621,6 @@ api.showLogs();
 api.showLogs(true);
 ```
 
-
-## Version Changes
-Unfortunately the mess with function-parameters did not stop with v2, I had to provide some new parameters.
-Instead of just adding them as another parameter, I decited to become future-prooved and put all function params in
-one object.
-
-function api.visibility:
-```javascript
-    //old
-    api.visibility('name','variant',function(name,variant,data){/*do sth with these parameters*/});
-
-    //new
-    api.visibility('name','variant',function(rule){/*do sth with rule.name, rule.variant, rule.data,...*/});
-
-    //this does not change:
-    api.visibility('name','variant','aResultParameter');
-```
-
-function api.on:
-```javascript
-    //old
-     api.on('visibilityrule', function (result,name,variant, data) {
-        //do sth with the parameters
-    })
-
-    //new
-     api.on('visibilityrule', function (event) {
-        //do sth with the parameters event.name, event.variant, event.data, event.result,...
-    })
-```
-
 ## License	
 <a href="https://opensource.org/licenses/MIT">MIT</a>.
 Copyright (c) 2018 Manuel Gelsen
