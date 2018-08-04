@@ -269,7 +269,7 @@ export default function featuretoggleapi(config={}) {
             Object.keys(globals.visibilities).forEach(key => {
                 const event = parseKey(key, globals);
                 const rule = globals.visibilities[key];
-                event.result = rule(event.name, event.variant, event.data);
+                event.result = rule(event);
                 fn(event);
             });
         },

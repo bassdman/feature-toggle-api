@@ -1,4 +1,4 @@
-const featureToggleApi = require('../../feature-toggle-api.js').default;
+const featureToggleApi = require('../../feature-toggle-api.module.js');
 
 describe("Initialisation / Basic Tests", function () {
     it("should return a function", function () {
@@ -219,10 +219,10 @@ describe("Listener", function () {
         expect(JSON.stringify(listenedEvents)).toBe(JSON.stringify(['feature,undefined,true','feature2,variant,true']));
     });
 
-    it("should pass parameters in order result,name,variant,data", function () {
+    it("should pass parameters as an object with result,name,variant,data", function () {
         var api = new featureToggleApi();
-        api.visibility('feature', 'variant','gruempfel',function(name,variant,data){
-            return (data + name + variant) == 'gruempfelfeaturevariant';
+        api.visibility('feature', 'variant','gruempfel',function(rule){
+            return (rule.data + rule.name + rule.variant) == 'gruempfelfeaturevariant';
         });
 
         api.on('visibilityrule', function (event) {

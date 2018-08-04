@@ -244,7 +244,7 @@ function featuretoggleapi() {
             Object.keys(globals.visibilities).forEach(function (key) {
                 var event = parseKey(key, globals);
                 var rule = globals.visibilities[key];
-                event.result = rule(event.name, event.variant, event.data);
+                event.result = rule(event);
                 fn(event);
             });
         },
