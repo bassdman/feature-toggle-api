@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Listener Feature-Toggle-API-Test</title>
-    <script>/*Quickhack to handle es-modules in Browser*/ var exports = {};</script>
     <script src="../feature-toggle-api.min.js"></script>
 </head>
 <body>
@@ -13,12 +12,10 @@
             var api = featuretoggleapi({
                 feature1: true
             });
-            var feature1Visible = api.isVisible('feature1');
-            var feature2Visible = api.isVisible('feature2');
-            
-            //here we could also use jquery,...
-            if(!feature1Visible) document.querySelector(".feature1").style.display = 'none';
-            if(!feature2Visible) document.querySelector(".feature2").style.display = 'none';
+            api.on('visibilityrule', function (rule) {
+                var featureVisible = api.isVisible(rule.name);
+                if(!featureVisible) document.querySelector("."+rule.name).style.display = 'none';
+            });
         </script>
 </body>
 </html>
