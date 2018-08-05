@@ -12,6 +12,7 @@
 ```
 
  - [Quicklink to the API](#api-description)
+ - [Quicklink to the HTML-Plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
@@ -327,20 +328,13 @@ The feature toggle api already implemented some Plugins that can be used without
 Some plugins are included within this package:
 
 ###### HTML-Plugin
-(Attention: Is in beta version - I didn't didn't have the time to test it yet) 
 You can use the api with <feature> tags
-```javascript
-    var featuretoggleapi = require('feature-toggle-api');
-    var htmlplugin = require('feature-toggle-api/plugin-html');
-    var api = new featuretoggleapi({feature1:true});
-    api.addPlugin(htmlplugin);
-```
 ```html
     <feature name="feature1">
         <!-- Will be shown because feature1 is visible -->
     </feature>
 ```
-[More information about this plugin you can find here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
+[Read more about this plugin here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
 
 ###### URL-Plugin
 (Attention: Is in beta version - I didn't didn't have the time to test it yet) 
