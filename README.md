@@ -13,6 +13,8 @@
 
  - [Quicklink to the API](#api-description)
  - [Quicklink to the HTML-Plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
+ - [Quicklink to the URL-Plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
+ - [Quicklink to the vue-Plugin (package vue-feature-toggle)](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
@@ -337,18 +339,13 @@ You can use the api with <feature> tags
 [Read more about this plugin here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
 
 ###### URL-Plugin
-(Attention: Is in beta version - I didn't didn't have the time to test it yet) 
 The api sets the features according to the url-parameters.
-```javascript
-    //imagine the url https://anydomain.de?feature1=true&feature2=false
-    var featuretoggleapi = require('feature-toggle-api');
-    var urlplugin = require('feature-toggle-api/plugin-url');
-    var api = new featuretoggleapi();
-    api.addPlugin(urlplugin);
 
-    //will have visibilityrules {feature1: true, feature2: false} activated
-```
-[More information about this plugin you can find here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
+Example: 
+URL: https://anydomain.de?feature1=true&feature2=false
+-> sets feature1=true and feature2=false
+
+[Read more about this plugin here.](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
 
 
 ##### Write a custom plugin

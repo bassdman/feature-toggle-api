@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML-Plugin Test</title>
+    <script src="../feature-toggle-api.js"></script>
+    <script src="../src/plugins/urlplugin/plugin-url.js"></script>
+</head>
+<body>
+    <div>
+        Add a parameter "&feature1=true" ore "&feature2=true" to the url and see, how the visibility of these elements changes.
+    </div>
+    <div class="feature1" style="border:1px solid lightgray;padding:1em;margin:1em;display:none;">This is text from feature1</div>
+    <div class="feature2" style="border:1px solid lightgray;padding:1em;margin:1em;display:none;">This is text from feature2</div>
+    <script>
+        var api = featuretoggleapi({
+            _plugins: [urlplugin({prefix:'_'})]
+        });
+        api.on('visibilityrule', function (rule) {
+            var featureVisible = api.isVisible(rule.name);
+            if(featureVisible) document.querySelector("."+rule.name).style.display = 'block';
+        });
+    </script>
+</body>
+</html>

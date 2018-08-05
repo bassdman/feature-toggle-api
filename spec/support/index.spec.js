@@ -1,4 +1,6 @@
 const featureToggleApi = require('../../feature-toggle-api.module.js');
+const urlplugin = require('../../src/plugins/urlplugin/plugin-url.js');
+const window = require('./polyfills.js')
 
 describe("Initialisation / Basic Tests", function () {
     it("should return a function", function () {
@@ -312,12 +314,48 @@ describe("Plugins", function () {
         var api = new featureToggleApi({_plugins: [newPlugin]});
         expect(api.initTriggered).toBe(true);
     });
-         /*   var apix = require('./dist/feature-toggle-api.js').default;
-        var urlplugin = require('./plugins/urlplugin');
-        const api = apix();
-        api.addPlugin(urlplugin())
+});
 
-        console.log(api.newFn());
-
-        html-plugin, url-plugin*/
+describe("URL-Plugin", function () {
+    it("should return empty string for url", function(){
+        var api = new featureToggleApi({
+            _plugins: [urlplugin({window})]
+        });
+        expect(api.url).toBe("");
+    })
+    it("should have api.url = anydomain.de if set in pluginconfig", function(){
+        var api = new featureToggleApi({
+            _plugins: [urlplugin({
+                url: "http://anydomain.de",
+                window
+            })]
+        });
+        expect(api.url).toBe("http://anydomain.de");
+    })
+    it("should have feature1 visible if param feature1=true exists", function(){
+        var api = new featureToggleApi({
+            _plugins: [urlplugin({url: 'anydomain.de?feature1=true', window})]
+        });
+        const visibilityF1 = api.isVisible("feature1");
+        const visibilityF2 = api.isVisible("feature2");
+        expect(visibilityF1).toBe(true);
+        expect(visibilityF2).toBe(false);
+    })
+    it("should only regard params with prefix", function(){
+        var api = new featureToggleApi({
+            _plugins: [urlplugin({
+                url: 'anydomain.de?feature1=true&_feature2=true', 
+                prefix: '_',
+                window
+            })]
+        });
+        const visibilityF1 = api.isVisible("feature1");
+        const visibilityF2 = api.isVisible("feature2");
+        const visibility_F1 = api.isVisible("_feature1");
+        const visibility_F2 = api.isVisible("_feature2");
+        expect(visibilityF1).toBe(false);
+        expect(visibilityF2).toBe(true);
+        expect(visibility_F1).toBe(false);
+        expect(visibility_F2).toBe(false);
+    })
 });
