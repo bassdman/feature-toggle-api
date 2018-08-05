@@ -14,7 +14,7 @@
  - [Quicklink to the API](#api-description)
  - [Quicklink to the HTML-Plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md)
  - [Quicklink to the URL-Plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
- - [Quicklink to the vue-Plugin (package vue-feature-toggle)](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/urlplugin/readme.md)
+ - [Quicklink to the vue-Plugin (package vue-feature-toggle)](https://github.com/bassdman/vue-feature-toggle)
 
 ## The Problem
 Imagine you have an onlineshop with an testmode and in multiple languages. 
