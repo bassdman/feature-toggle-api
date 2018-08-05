@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML-Plugin Test</title>
+    <script src="../../../feature-toggle-api.min.js"></script>
+    <script src="../../../plugin-html.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- The name property is required -->
+        <feature name="feature1">This is "Feature1"</feature>
+        <feature name="featureh1" tag="h1">This feature is rendered with a h1-tag as root-Element, not a div.</feature>
+        <!-- The variant property is optional and can be any string -->
+        <feature name="feature2">This is "Feature2"</feature>
+        <feature name="feature2" variant="new">This is "Feature2" with variant "new"</feature>
+        <feature name="feature2" variant="old">This "Feature2" with variant "old"</feature>
+        <feature name="feature2" variant="grumpfel">This "Feature2" with variant "grumpfel"</feature>
+    
+        <feature name="feature3" variant="old" data='["a",2]'>This "Feature3" with variant "old" has some Data.</feature>
+        <feature name="feature3" variant="new" data='{"text":"grumpfel"}'>This "Feature3" with variant "old" has some Data. </feature>
+    </div>
+        <script>
+            var api = featuretoggleapi({
+                "feature2#new": true,
+                "feature2#grumpfel": true,
+                "featureh1": true,
+                _plugins: [htmlplugin()]
+            });
+            api.visibility("feature3",function(rule){
+                return rule.data.text == 'grumpfel';
+            })
+        </script>
+</body>
+</html>
