@@ -1,4 +1,4 @@
-# FeatureToggleAPI-HTML-Plugin
+# HTML-Plugin
 
 Use Feature-Tags in the html to show / hide features depending on the visibility rules.
 Watch the [example](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/example.html) as an example.
