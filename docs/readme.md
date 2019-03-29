@@ -1,10 +1,17 @@
 # The interactive feature-toggle-api demo
 
-> Gives you advanced feature-toggle for any Framework
+> Gives you advanced feature-toggle for any Framework - test it with live examples
 
 [![npm version](https://img.shields.io/npm/v/feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
 [![npm downloads](https://img.shields.io/npm/dt/feature-toggle-api.svg)](https://www.npmjs.com/package/feature-toggle-api)
 [![npm downloads](https://img.shields.io/github/license/mashape/apistatus.svg)](https://www.npmjs.com/package/feature-toggle-api)
+
+## Live example
+Try many interactive examples - so you won't take long to understand the api.
+
+<iframe src="https://bassdman.github.io/feature-toggle-api/example-intro.html" width="700"> </iframe>
+
+
 ## Install
 
 ``` shell
@@ -93,12 +100,9 @@ var api = featuretoggleapi({
 var feature1Visible = api.isVisible('feature1');
 var feature2Visible = api.isVisible('feature2');
 
-That's how this example wuld look like:
-
-<iframe src="https://bassdman.github.io/feature-toggle-api/example-intro.html" width="700"> </iframe>
-
 //now you can do sth with the visibilities
 ```
+
 
 ### Initialisation
 Initialisation is very simple
