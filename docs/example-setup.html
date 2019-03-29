@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Example Feature-Toggle-API-Test</title>
+	<script src="feature-toggle-api.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<style>
+		body {
+			padding: 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<nav>
+			<h3>Let's setup the feature-toggle. </h3>
+			<p>
+				That's how it will look like.
+			</p>
+		</nav>
+		<div v-if="feature1" class="alert alert-primary">This is text from feature1</div>
+		<div v-if="feature2" class="alert alert-primary">This is text from feature2</div>
+	</div>
+
+	<script>
+		var api = featuretoggleapi({
+			feature1: true,
+		});
+
+		var app = new Vue({
+			el: '#app',
+			data: {
+				feature1Visible: false,
+				feature2Visible: false,
+				feature1Input: false,
+				feature2Input: false
+			},
+			methods: {
+				checkboxToggle: function (e) {
+					api.visibility('feature1', this.feature1Input)
+					api.visibility('feature2', this.feature2Input)
+				}
+			}
+		})
+		var feature1Visible = api.isVisible('feature1');
+        var feature2Visible = api.isVisible('feature2');
+		
+		app.feature1 = feature1Visible;
+		app.feature2 = feature2Visible;
+	</script>
+</body>
+
+</html>

@@ -9,7 +9,7 @@
 ## Live example
 Try many interactive examples - so you won't take long to understand the api.
 
-<iframe src="https://bassdman.github.io/feature-toggle-api/example-intro.html" width="700"> </iframe>
+<iframe src="https://bassdman.github.io/feature-toggle-api/example-intro.html" width="700" height="310"> </iframe>
 
 
 ## Install
@@ -57,10 +57,10 @@ When you want to change a visibility rule, for example "Show feature XYZ also in
 
 <a href="https://martinfowler.com/articles/feature-toggles.html">Read the article from Martin Fowler about feature toggle for a better understanding.</a>
 
-## The Usage
-Look in the example folder for working examples in HTML Templates.
+### Setup
+We will initialize the api in two ways. In both ways we will have it initialized with one feature.
+<iframe src="https://bassdman.github.io/feature-toggle-api/example-setup.html" width="700" height="310"> </iframe>
 
-### Initialisation
 Create a new project, type
 ``` shell
     npm install feature-toggle-api --save
