@@ -4,13 +4,17 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Example Feature-Toggle-API-Test</title>
-	<script src="feature-toggle-api.min.js"></script>
+	<script src="vue-feature-toggle.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
 		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	<style>
 		body {
 			padding: 10px;
+		}
+		.code{
+			font-size:smaller;
+			color:gray;
 		}
 	</style>
 </head>
@@ -25,31 +29,36 @@
 			<div class="form-group form-check">
 				<input class="form-check-input" @change="checkboxToggle" v-model="feature1Input" type="checkbox"
 					name="feature1" id="feature1">
-				<label class="form-check-label" for="feature1">Feature1:</label>
-				<span>api.isVisibible('feature1') -> {{feature1Visible}}</span>
+				<label class="form-check-label" for="feature1">
+					<span>Feature1: </span>
+					<span class="code">api.isVisibible('feature1') -> {{feature1}}</span>
+				</label>
+
 			</div>
 			<div class="form-group form-check">
 				<input class="form-check-input" @change="checkboxToggle" v-model="feature2Input" type="checkbox"
 					name="feature2" id="feature2">
-				<label class="form-check-label" for="feature2">Feature2:</label>
-				<span>api.isVisibible('feature2') -> {{feature2Visible}}</span>
+				<label class="form-check-label" for="feature2">
+					<span>Feature2:</span>
+					<span class="code">api.isVisibible('feature2') -> {{feature2}}</span>
+				</label>
+
 			</div>
 		</nav>
-		<div v-if="feature1Visible" class="alert alert-primary">This is feature1</div>
-		<div v-if="feature2Visible" class="alert alert-primary">This is feature2</div>
+		<feature name="feature1" class="alert alert-primary">This is feature1</feature>
+		<feature name="feature2" class="alert alert-primary">This is feature2</feature>
+		<feature name="feature2" variant="v1" class="alert alert-primary">This is feature2 variant on</feature>
 	</div>
 
 	<script>
-		var api = featuretoggleapi({
-			feature1: false,
-			feature2: false
-		});
+		var api = vueFeatureToggle;
 
 		var app = new Vue({
 			el: '#app',
+			components: { 'feature': api },
 			data: {
-				feature1Visible: false,
-				feature2Visible: false,
+				feature1: false,
+				feature2: false,
 				feature1Input: false,
 				feature2Input: false
 			},
@@ -59,10 +68,6 @@
 					api.visibility('feature2', this.feature2Input)
 				}
 			}
-		})
-
-		api.on('visibilityrule', function (event) {
-			app[event.name + 'Visible'] = event.result;
 		})
 	</script>
 </body>

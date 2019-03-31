@@ -59,7 +59,7 @@ When you want to change a visibility rule, for example "Show feature XYZ also in
 
 ### Setup
 We will initialize the api in two ways. In both ways we will have it initialized with one feature.
-<iframe src="https://bassdman.github.io/feature-toggle-api/example-setup.html" width="700" height="310"> </iframe>
+<iframe src="https://bassdman.github.io/feature-toggle-api/example-setup.html" width="700" height="210"> </iframe>
 
 Create a new project, type
 ``` shell
@@ -141,6 +141,9 @@ var api = new featuretoggleapi({
 
 ### Features
 For the next examples we will imagine, the properties are mapped to the visibility rules. (Btw, the [html-plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md) does this for you ;)
+Here's an live example: 
+<iframe src="https://bassdman.github.io/feature-toggle-api/example-visibility-basic.html" width="700" height="210"> </iframe>
+
 ```html
 <div id="app">
     <!-- Just imagine, the properties are matched to the visibility rules -->

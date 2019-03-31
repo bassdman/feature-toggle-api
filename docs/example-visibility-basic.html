@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Example Feature-Toggle-API-Test</title>
+	<script src="vue-feature-toggle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<style>
+		body {
+			padding: 10px;
+		}
+
+		#app {
+			display: flex;
+			flex-wrap: wrap;
+		}
+
+		nav {
+			flex: 1 100%;
+			border-bottom: 1px solid black;
+			margin-bottom: 10px;
+			padding: 20px;
+		}
+
+		.alert {
+			margin: 5px;
+		}
+
+		.form-group {
+			border: 1px solid gray;
+			padding: 10px;
+			border-radius: 10px;
+		}
+
+		.form-group.inner {
+			border: none;
+		}
+		p{
+			margin-bottom: 5px;
+		}
+		.bracket{
+			color:gray;
+		}
+		.tagname {
+			color:gray;
+		}
+		.attrname{
+			color: blue;
+		}
+		.attrcontent{
+			color:brown;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app">
+		<nav>
+			<h3>This is a simple example of the api.</h3>
+			<p>
+				Select these boxes to show / hide the features.
+				Change the parameters here to show/hide the features below.
+			</p>
+			
+			<div class="form-group">
+				<div class="form-group inner">
+					<label class="form-check-label" for="name">Name: </label>
+					<input class="form-control" @keyup="checkboxToggle($event,true)"
+						@keydown="checkboxToggle($event,false)" v-model="name" type="text" id="name">
+					<small class="form-text text-muted"></small>
+				</div>
+				<div class="form-group inner">
+					<label class="form-check-label" for="variant">Variant: </label>
+					<input class="form-control" @keyup="checkboxToggle($event,true)"
+						@keydown="checkboxToggle($event,false)" v-model="variant" type="text" id="variant">
+					<small class="form-text text-muted"></small>
+				</div>
+				<div class="form-group inner">
+					<label class="form-check-label" for="feature3Data">Data: </label>
+					<input class="form-control" @keyup="checkboxToggle($event,true)"
+						@keydown="checkboxToggle($event,false)" v-model="data" type="text">
+					<small id="emailHelp" class="form-text text-muted">Type in "grumpfel and feature 3.1 will be
+						visible"</small>
+				</div>
+			</div>
+			<p>These Features exist</p>
+			<p><span v-html="insertText('feature1')"></span></p>
+			<p><span v-html="insertText('feature2')"></span></p>
+			<p><span v-html="insertText('feature2','old')"></span></p>
+			<p><span v-html="insertText('feature2','new')"></span></p>
+			<p><span v-html="insertText('feature2','grumpfel')"></span></p>
+			<p><span v-html="insertText('feature3','old','grumpfel')"></span></p>
+			<p><span v-html="insertText('feature3','new','{\'text\':\'grumpfel\'}',true)"></span></p>
+
+		</nav>
+		
+		<p style="width:100%">The features shown here are visible according to the data above. The others are hidden.</p>
+		<feature class="alert alert-primary" name="feature1"><span v-html="insertText('feature1')"></span></feature>
+
+		<!-- The variant property is optional and can be any string -->
+		<feature class="alert alert-secondary" name="feature2"><span v-html="insertText('feature2')"></span></feature>
+		<feature class="alert alert-secondary" name="feature2" variant="new"><p><span v-html="insertText('feature2','new')"></span></p></feature>
+		<feature class="alert alert-secondary" name="feature2" variant="old"><p><span v-html="insertText('feature2','old')"></span></p></feature>
+		<feature class="alert alert-secondary" name="feature2" variant="grumpfel"><p><span v-html="insertText('feature2','grumpfel')"></span></p></feature>
+
+		<feature class="alert alert-dark" name="feature3" variant="old" data="grumpfel"><span v-html="insertText('feature3','old','grumpfel')"></span></feature>
+		<feature class="alert alert-dark" name="feature3" variant="new" :data="{'text':'grumpfel'}"><span v-html="insertText('feature3','new','{\'text\':\'grumpfel\'}',true)"></span></feature>
+	</div>
+
+	<script>
+		var api = vueFeatureToggle;
+
+		var app = new Vue({
+			el: '#app',
+			components: { 'feature': api },
+			data: {
+				name: 'feature3',
+				variant: 'old',
+				data: 'grumpfel'
+			},
+			methods: {
+				checkboxToggle: function (event, result) {
+					api.visibility(this.name, this.variant, this.data, result)
+				},
+				insertText : function(name,variant,data,bindData){
+					const nameAttribute = name ? `<span class="attrname">name</span>=<span class="bracket">"</span><span class="attrcontent">${name}</span><span class="bracket">"</span>`: "";
+					const variantAttribute = variant ? `<span class="attrname">variant</span>=<span class="bracket">"</span><span class="attrcontent">${variant}</span><span class="bracket">"</span>`: "";
+					const dataAttribute = data ? `<span class="attrname">${bindData ? ':data' : 'data'}</span>=<span class="bracket">"</span><span class="attrcontent">${data}</span><span class="bracket">"</span>`: "";
+
+					return `<span class="bracket">&lt;</span><span class="tagname">feature</span> ${nameAttribute} ${variantAttribute} ${dataAttribute}<span class="bracket">&gt;</span>...<span class="bracket">&lt;/</span><span class="tagname">feature</span><span class="bracket">&gt;</span>`
+				}
+			},
+			ready: function () {
+				api.visibility(this.name, this.variant, this.data, true)
+			},
+			mounted: function () {
+				api.visibility(this.name, this.variant, this.data, true)
+			},
+		})
+	</script>
+</body>
+
+</html>
