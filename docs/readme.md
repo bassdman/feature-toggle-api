@@ -142,7 +142,7 @@ var api = new featuretoggleapi({
 ### Features
 For the next examples we will imagine, the properties are mapped to the visibility rules. (Btw, the [html-plugin](https://github.com/bassdman/feature-toggle-api/blob/master/src/plugins/htmlplugin/readme.md) does this for you ;)
 Here's an live example: 
-<iframe src="https://bassdman.github.io/feature-toggle-api/example-visibility-basic.html" width="700" height="210"> </iframe>
+<iframe src="https://bassdman.github.io/feature-toggle-api/example-visibility-basic.html" width="700" height="900"> </iframe>
 
 ```html
 <div id="app">

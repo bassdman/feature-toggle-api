@@ -64,7 +64,14 @@
 				Select these boxes to show / hide the features.
 				Change the parameters here to show/hide the features below.
 			</p>
-			
+			<p>These Features exist</p>
+			<p><span v-html="insertText('feature1')"></span></p>
+			<p><span v-html="insertText('feature2')"></span></p>
+			<p><span v-html="insertText('feature2','old')"></span></p>
+			<p><span v-html="insertText('feature2','new')"></span></p>
+			<p><span v-html="insertText('feature2','grumpfel')"></span></p>
+			<p><span v-html="insertText('feature3','old','grumpfel')"></span></p>
+			<p><span v-html="insertText('feature3','new','{\'text\':\'grumpfel\'}',true)"></span></p>
 			<div class="form-group">
 				<div class="form-group inner">
 					<label class="form-check-label" for="name">Name: </label>
@@ -86,15 +93,6 @@
 						visible"</small>
 				</div>
 			</div>
-			<p>These Features exist</p>
-			<p><span v-html="insertText('feature1')"></span></p>
-			<p><span v-html="insertText('feature2')"></span></p>
-			<p><span v-html="insertText('feature2','old')"></span></p>
-			<p><span v-html="insertText('feature2','new')"></span></p>
-			<p><span v-html="insertText('feature2','grumpfel')"></span></p>
-			<p><span v-html="insertText('feature3','old','grumpfel')"></span></p>
-			<p><span v-html="insertText('feature3','new','{\'text\':\'grumpfel\'}',true)"></span></p>
-
 		</nav>
 		
 		<p style="width:100%">The features shown here are visible according to the data above. The others are hidden.</p>
