@@ -1,40 +1,41 @@
 {
-  "name": "feature-toggle-api",
-  "version": "3.3.1",
-  "description": "Gives you advanced feature-toggle for any Framework",
-  "main": "feature-toggle-api.module.js",
-  "scripts": {
-    "pretest": "gulp build",
-    "test": "jasmine"
-  },
-  "author": "Manuel Gelsen",
-  "license": "MIT",
-  "keywords": [
-    "feature-toggle-api",
-    "feature-toggle",
-    "feature",
-    "toggle",
-    "flag",
-    "api"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bassdman/feature-toggle-api.git"
-  },
-  "bugs": {
-    "url": "https://github.com/bassdman/feature-toggle-api.git/issues"
-  },
-  "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^7.0.1",
-    "gulp-concat": "^2.6.1",
-    "gulp-minify": "^2.1.0",
-    "gulp-rollup": "^2.16.2",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-uglify": "^3.0.0",
-    "jasmine": "^3.1.0"
-  }
+    "name": "feature-toggle-api",
+    "version": "3.3.2",
+    "description": "Gives you advanced feature-toggle for any Framework",
+    "main": "feature-toggle-api.module.js",
+    "scripts": {
+        "pretest": "gulp build",
+        "test": "jasmine"
+    },
+    "author": "Manuel Gelsen",
+    "license": "MIT",
+    "keywords": [
+        "feature-toggle-api",
+        "feature-toggle",
+        "feature",
+        "toggle",
+        "flag",
+        "api"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/bassdman/feature-toggle-api.git"
+    },
+    "bugs": {
+        "url": "https://github.com/bassdman/feature-toggle-api.git/issues"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.3",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-es2015": "^6.24.1",
+        "gulp": "^4.0.2",
+        "gulp-babel": "^7.0.1",
+        "gulp-concat": "^2.6.1",
+        "gulp-minify": "^3.1.0",
+        "gulp-rollup": "^2.17.0",
+        "gulp-sourcemaps": "^2.6.5",
+        "gulp-uglify": "^3.0.2",
+        "jasmine": "^3.5.0"
+    },
+    "dependencies": {}
 }
