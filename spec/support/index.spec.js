@@ -38,6 +38,14 @@ describe("Basic visibility of features", function() {
         expect(visibility).toBe(true);
     });
 
+    it("should ignore case for the api-keys in constructor", function() {
+        const api = new featureToggleApi({ ignoreCase: true });
+        const visibility1 = api.isVisible('ignorecase');
+        const visibility2 = api.isVisible('iGNOrEcaSe');
+        expect(visibility1).toBe(true);
+        expect(visibility2).toBe(true);
+    });
+
     it("should ignore case for the api-keys", function() {
         api.visibility('ignoreCase', true);
         const visibility1 = api.isVisible('ignorecase');
