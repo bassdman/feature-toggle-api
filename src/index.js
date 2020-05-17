@@ -6,12 +6,21 @@ const parseToFn = function (fnOrBool) {
     return fnOrBool;
 }
 
+const getKey = function (name, variant) {
+    var _name = name.toLowerCase();
+    if (typeof variant == 'string') {
+        _name += "#" + variant.toLowerCase();
+    }
+
+    return _name;
+}
+
 function initVisibilities(visibilities = {}) {
     const returnVisibilities = {};
     Object.keys(visibilities).forEach(key => {
         if(key.startsWith('_'))
             return;
-        returnVisibilities[key] = parseToFn(visibilities[key]);
+        returnVisibilities[getKey(key)] = parseToFn(visibilities[key]);
     });
     return returnVisibilities;
 }
@@ -105,14 +114,6 @@ export default function featuretoggleapi(config={}) {
         return logAndReturn(false, `The ${functionname} returns ${calculatedVisibility}. => Please return true or false. This result (and all non-boolean results) will return false.`);
     }
 
-    function getKey(name, variant) {
-        var _name = name.toLowerCase();
-        if (typeof variant == 'string') {
-            _name += "#" + variant.toLowerCase();
-        }
-
-        return _name;
-    }
     function parseKey(key) {
         const parts = key.split('#');
         return {
