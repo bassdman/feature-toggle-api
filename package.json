@@ -35,7 +35,7 @@
         "gulp-rollup": "^2.17.0",
         "gulp-sourcemaps": "^2.6.5",
         "gulp-uglify": "^3.0.2",
-        "jasmine": "^3.5.0"
+        "jasmine": "^3.6.1"
     },
     "dependencies": {}
 }
