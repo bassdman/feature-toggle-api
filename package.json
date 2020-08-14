@@ -1,6 +1,6 @@
 {
     "name": "feature-toggle-api",
-    "version": "3.3.2",
+    "version": "3.3.3",
     "description": "Gives you advanced feature-toggle for any Framework",
     "main": "feature-toggle-api.module.js",
     "scripts": {
