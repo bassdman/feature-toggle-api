@@ -16,7 +16,7 @@ function build_module() {
             }
         }))
         .pipe(babel({
-            presets: ['env']
+            presets: ["@babel/preset-env"]
         }))
         .pipe(concat('feature-toggle-api.module.js'))
         //     .pipe(sourcemaps.write())
@@ -34,7 +34,7 @@ function build_raw() {
             }
         }))
         .pipe(babel({
-            presets: ['env']
+            presets: ["@babel/preset-env"]
         }))
         .pipe(concat('feature-toggle-api.js'))
         //     .pipe(sourcemaps.write())
@@ -52,7 +52,7 @@ function build_min() {
             }
         }))
         .pipe(babel({
-            presets: ['env']
+            presets: ["@babel/preset-env"]
         }))
         .pipe(uglify())
         .pipe(concat('feature-toggle-api.min.js'))
@@ -64,7 +64,7 @@ function build_plugins() {
     return src(['src/plugins/htmlplugin/plugin-html.js', 'src/plugins/urlplugin/plugin-url.js'])
         //   .pipe(sourcemaps.init())
         .pipe(babel({
-            presets: ['env']
+            presets: ["@babel/preset-env"]
         }))
         .pipe(uglify())
         //.pipe(concat('feature-toggle-api.min.js'))
