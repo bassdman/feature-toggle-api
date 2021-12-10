@@ -192,7 +192,7 @@ function featuretoggleapi() {
     var variantExists = variant != null;
     var visibilityOnlyNameFnKey = getKey(name, null);
     var visibilityOnlyNameFn = visibilities[visibilityOnlyNameFnKey];
-    var visibilityOnlyNameFnExists = visibilities[visibilityOnlyNameFnKey] != null;
+    visibilities[visibilityOnlyNameFnKey] != null;
     var visibilityOnlyNameFnResult = getVisibility(visibilityOnlyNameFn, 'visibility function (only name)', name, variant, data);
     var defaultFn = visibilities['_default'];
     var defaultFnExists = visibilities['_default'] != null;
@@ -225,7 +225,7 @@ function featuretoggleapi() {
       });
       if (config != undefined && config.ignorePreviousRules) return;
       Object.keys(globals.visibilities).forEach(function (key) {
-        var event = parseKey(key, globals);
+        var event = parseKey(key);
         var rule = globals.visibilities[key];
         event.result = rule(event);
         fn(event);

@@ -4,9 +4,16 @@
     "description": "Gives you advanced feature-toggle for any Framework",
     "main": "feature-toggle-api.module.js",
     "scripts": {
-        "pretest": "gulp build",
+        "pretest": "npm run build",
         "test": "jasmine",
-        "build": "gulp build"
+        "build": "npm-run-all build:rollup-* build:babel-files build:minify-*",
+        "build:rollup-file1": "rollup src/index.js --file feature-toggle-api.module.js --format cjs",
+        "build:rollup-file2": "rollup src/index.cjs.js --file feature-toggle-api.js --format cjs",
+        "build:rollup-file3": "rollup src/index.cjs.js --file feature-toggle-api.min.js --format cjs",
+        "build:babel-files": "npx babel feature-toggle-api.module.js feature-toggle-api.js feature-toggle-api.min.js src/plugins/htmlplugin/plugin-html.js src/plugins/urlplugin/plugin-url.js --out-dir ./ --presets @babel/preset-env",
+        "build:minify-file1": "uglifyjs feature-toggle-api.min.js --output feature-toggle-api.min.js",
+        "build:minify-file2": "uglifyjs plugin-html.js --output plugin-html.js --mangle",
+        "build:minify-file3": "uglifyjs plugin-url.js --output plugin-url.js --mangle"
     },
     "author": "Manuel Gelsen",
     "license": "MIT",
@@ -26,14 +33,12 @@
         "url": "https://github.com/bassdman/feature-toggle-api.git/issues"
     },
     "devDependencies": {
+        "@babel/cli": "^7.16.0",
         "@babel/core": "^7.14.3",
         "@babel/preset-env": "^7.14.4",
-        "gulp": "^4.0.2",
-        "gulp-babel": "^8.0.0",
-        "gulp-concat": "^2.6.1",
-        "gulp-minify": "^3.1.0",
-        "gulp-rollup": "^2.17.0",
-        "gulp-uglify": "^3.0.2",
-        "jasmine": "^3.6.1"
+        "jasmine": "^3.6.1",
+        "npm-run-all": "^4.1.5",
+        "rollup": "^2.61.0",
+        "uglify-js": "^3.14.4"
     }
 }
