@@ -1,24 +1,19 @@
 'use strict';
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 var parseToFn = function parseToFn(fnOrBool) {
   if (typeof fnOrBool == 'boolean') return function () {
     return fnOrBool;
   };
   return fnOrBool;
 };
-
 var getKey = function getKey(name, variant) {
   var _name = name.toLowerCase();
-
   if (typeof variant == 'string') {
     _name += "#" + variant.toLowerCase();
   }
-
   return _name;
 };
-
 function initVisibilities() {
   var visibilities = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var returnVisibilities = {};
@@ -28,7 +23,6 @@ function initVisibilities() {
   });
   return returnVisibilities;
 }
-
 function featuretoggleapi() {
   var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var globals = {
@@ -38,47 +32,38 @@ function featuretoggleapi() {
     showLogs: false,
     usedPlugins: []
   };
-
   function init(api) {
     if (config._plugins) {
       if (!Array.isArray(config._plugins)) throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
-
       config._plugins.forEach(function (plugin) {
         if (typeof plugin !== 'function') throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + _typeof(plugin) + '.');
-
         _addPlugin(plugin, api);
       });
     }
-
     triggerEvent('init');
   }
-
   function _addPlugin(plugin, api) {
     plugin(api);
   }
-
   function triggerEvent(eventtype, param) {
     (globals.listeners[eventtype] || []).forEach(function (listener) {
       listener(param);
     });
   }
-
   var log = function log(message) {
-    if (!globals.showLogs) return; //Nur Browser können Syntaxhighlighting die anderen geben die Nachricht einfach aus und schneiden
-    //die styletags raus
+    if (!globals.showLogs) return;
 
+    //Nur Browser können Syntaxhighlighting die anderen geben die Nachricht einfach aus und schneiden
+    //die styletags raus
     if (typeof window === 'undefined') {
       var loggedMessage = message.replace(/<b>/g, "");
       console.log(loggedMessage);
       return;
     }
-
     var hasBoldTag = message.indexOf('<b>') != -1;
     var hasVisibleKeyword = message.indexOf('visible') != -1;
     var hasHiddenKeyword = message.indexOf('hidden') != -1;
-
     var _message = message.replace('visible', '%cvisible');
-
     _message = _message.replace('hidden', '%chidden');
     if (hasVisibleKeyword) console.log(_message, "color:green;font-weight:bold;");else if (hasHiddenKeyword) console.log(_message, "color:red;font-weight:bold;");else if (hasBoldTag) {
       _message = _message.replace('<b>', '%c');
@@ -86,13 +71,11 @@ function featuretoggleapi() {
       console.log.apply(null, parts);
     } else console.log(message);
   };
-
   var logAndReturn = function logAndReturn(returnValue, message) {
     log(message);
     log('');
     return returnValue;
   };
-
   var getVisibility = function getVisibility(visibilityFn, functionname, name, variant, data) {
     if (visibilityFn == null) return undefined;
     var calculatedVisibility = visibilityFn({
@@ -100,14 +83,11 @@ function featuretoggleapi() {
       variant: variant,
       data: data
     });
-
     if (typeof calculatedVisibility == 'boolean') {
       return calculatedVisibility;
     }
-
     return logAndReturn(false, "The ".concat(functionname, " returns ").concat(calculatedVisibility, ". => Please return true or false. This result (and all non-boolean results) will return false."));
   };
-
   function parseKey(key) {
     var parts = key.split('#');
     return {
@@ -116,6 +96,7 @@ function featuretoggleapi() {
       data: globals.datas[key]
     };
   }
+
   /*
       the following calls are possible:
       visibility(name,result);
@@ -128,17 +109,14 @@ function featuretoggleapi() {
       param3: result || data
       param4: result
   */
-
-
   function visibilityFnParams(param1, param2, param3, param4) {
     //name must always be set
     if (param1 == undefined) throw new Error('feature.visibility(): 1st parameter name must be defined');
     if (arguments.length == 1) throw new Error('feature.visibility(): 2nd parameter name must be a boolean or function, but is empty');
     var name = param1,
-        variant = null,
-        data = null,
-        result = null;
-
+      variant = null,
+      data = null,
+      result = null;
     if (param3 == undefined && param4 == undefined) {
       result = param2;
     } else if (param4 == undefined) {
@@ -149,7 +127,6 @@ function featuretoggleapi() {
       data = param3;
       result = param4;
     }
-
     return {
       name: name,
       variant: variant,
@@ -157,7 +134,6 @@ function featuretoggleapi() {
       result: result
     };
   }
-
   function getEvent(name, variant, data, result) {
     var event;
     event = {
@@ -177,7 +153,6 @@ function featuretoggleapi() {
     });
     return event;
   }
-
   function isVisible(name, variant, data) {
     var visibilities = globals.visibilities;
     log("\nCheck Visibility of <b>Feature \"".concat(name, "\", variant \"").concat(variant == undefined ? '' : variant, "\"").concat(data ? " with data " + JSON.stringify(data) : "", "."));
@@ -206,7 +181,6 @@ function featuretoggleapi() {
     if (requiredFnExists) return logAndReturn(true, "Only the requiredVisibility rule was found. This returned true. => This feature will be visible.");
     return logAndReturn(false, 'No rules were found. This feature will be hidden.');
   }
-
   var api = {
     name: 'feature-toggle-api',
     setData: function setData(nameParam, variantOrDataParam, dataParam) {
@@ -236,7 +210,6 @@ function featuretoggleapi() {
       globals.showLogs = _showLogs == undefined ? true : _showLogs;
     },
     isVisible: isVisible,
-
     /*
         the following function calls are possible:
         visibility(name,result);
@@ -260,14 +233,11 @@ function featuretoggleapi() {
     },
     addPlugin: function addPlugin(plugin) {
       if (globals.usedPlugins.includes(plugin)) return;
-
       _addPlugin(plugin, api);
-
       globals.usedPlugins.push(plugin);
     }
   };
   init(api);
   return api;
 }
-
 module.exports = featuretoggleapi;
