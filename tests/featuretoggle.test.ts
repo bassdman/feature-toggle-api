@@ -299,6 +299,17 @@ describe("Plugins", function() {
         assert.notStrictEqual(api.addPlugin,null);
     });
 
+    it("should be possible with legacy-key _plugins", function() {
+        function newPlugin(api) {
+            api.newplugin = true;
+        }
+
+        var api = useFeatureToggle({
+            _plugins:[newPlugin]
+        });
+        assert.strictEqual(api.newplugin,true);
+    });
+
     it("should add attribute 'newplugin' to the api", function() {
         function newPlugin(api) {
             api.newplugin = true;
@@ -314,7 +325,7 @@ describe("Plugins", function() {
             api.newplugin = true;
         }
 
-        var api = useFeatureToggle({},{ _plugins: [newPlugin] });
+        var api = useFeatureToggle({ $plugins: [newPlugin] });
 
         assert.strictEqual(api.newplugin,true);
         assert.strictEqual(api.isVisible('_plugin'),false);
@@ -340,21 +351,21 @@ describe("Plugins", function() {
             })
         }
 
-        var api = useFeatureToggle({},{ _plugins: [newPlugin] });
+        var api = useFeatureToggle({ $plugins: [newPlugin] });
         assert.strictEqual(api.initTriggered,true);
     });
 });
 
 describe("URL-Plugin", function() {
     it("should return empty string for url", function() {
-        var api = useFeatureToggle({},{
-            _plugins: [urlPlugin({ useMockedWindow:true})]
+        var api = useFeatureToggle({
+            $plugins: [urlPlugin({ useMockedWindow:true})]
         });
         assert.strictEqual(api.url,"");
     })
     it("should have api.url = anydomain.de if set in pluginconfig", function() {
-        var api = useFeatureToggle({},{
-            _plugins: [urlPlugin({
+        var api = useFeatureToggle({
+            $plugins: [urlPlugin({
                 url: "http://anydomain.de",
                 useMockedWindow:true
             })]
@@ -362,8 +373,8 @@ describe("URL-Plugin", function() {
         assert.strictEqual(api.url,"http://anydomain.de");
     })
     it("should have feature1 visible if param feature1=true exists", function() {
-        var api = useFeatureToggle({},{
-            _plugins: [urlPlugin({ url: 'anydomain.de?feature1=true', useMockedWindow:true })]
+        var api = useFeatureToggle({
+            $plugins: [urlPlugin({ url: 'anydomain.de?feature1=true', useMockedWindow:true })]
         });
         const visibilityF1 = api.isVisible("feature1");
         const visibilityF2 = api.isVisible("feature2");
@@ -371,8 +382,8 @@ describe("URL-Plugin", function() {
         assert.strictEqual(visibilityF2,false);
     })
     it("should only regard params with prefix", function() {
-        var api = useFeatureToggle({},{
-            _plugins: [urlPlugin({
+        var api = useFeatureToggle({
+            $plugins: [urlPlugin({
                 url: 'anydomain.de?feature1=true&_feature2=true',
                 prefix: '_',
                 useMockedWindow:true

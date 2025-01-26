@@ -1,6 +1,6 @@
 import { urlPlugin } from "./plugins/urlplugin/plugin-url"
 import { htmlPlugin } from "./plugins/htmlplugin/plugin-html"
-import { useFeatureToggle } from "./featureToggle"
+import useFeatureToggle from "./featureToggle"
 
 
 export {

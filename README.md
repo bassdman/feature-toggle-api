@@ -86,20 +86,20 @@ console.log(feature.isVisible('c')); //false
 ```
 
 
-You want to include it as a scripttag? Here's a sample HTML-File. 
+Or you want to include it as a scripttag? Here's a sample HTML-File. 
 ``` html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Basic Feature-Toggle-API-Test</title>
-    <script src="../path/to/feature-toggle-api/dist/feature-toggle.umd.min.js"></script>
+    <script src="path/to/feature-toggle-api/dist/feature-toggle.umd.min.js"></script>
 </head>
 <body>
     <div class="feature1">This is text from feature1</div>
     <div class="feature2">This is text from feature2</div>
     <script>
-        var api = featureToggle.useFeatureToggle({
+        var api = useFeatureToggle({
             feature1: true
         });
         var feature1Visible = api.isVisible('feature1');
@@ -141,7 +141,7 @@ api.setFlag('feature4','new',"some custom data",false);
 Important: A visibilityrule mustn't start with an underscore. Attributes starting with an underscore are reserved for configuration settings.
 ```javascript
 //This api has already initialized some visiblity rules:
-var api = new featuretoggleapi({
+var api = useFeatureToggle({
     feature1: true,  //visibilityrule feature1 -> true
     plugins: true,   //visibilityrule plugins -> true
     _feature1: true, //_ is reserved for configuration -> this attribute does nothing
@@ -377,7 +377,7 @@ Calling addPlugin() prevents you from from adding a plugin multiple times, so if
     
     //1st option: via constructor
     //Important: don't forget the _ in the property _plugins!!!
-    const api = featuretoggleapi({_plugins:[customFunctionPlugin]});
+    const api = useFeatureToggle({_plugins:[customFunctionPlugin]});
 
     //2nd option: via function
     api.addPlugin(customFunctionPlugin);
@@ -397,7 +397,7 @@ Here's the way, how to add parameters to your plugin
 
     //1st option: via constructor
     //Important: don't forget the _ in the property _plugins!!!
-    const api = featuretoggleapi({_plugins:[pluginWithParams('Peter')]});
+    const api = useFeatureToggle({_plugins:[pluginWithParams('Peter')]});
 
     //2nd option: via function
     api.addPlugin(pluginWithParams('Peter'));

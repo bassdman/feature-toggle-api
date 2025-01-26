@@ -30,17 +30,20 @@ declare function htmlPlugin(config?: HtmlPluginConfig): (api: any) => {
 interface OnConfiguration {
     ignorePreviousRules: boolean;
 }
+type Plugin = (api: any) => void;
 interface OnEvent {
     name: string;
     variant: string;
     data: any;
     result?: boolean;
 }
-interface VisibilityConfig {
-    [key: string]: boolean | (() => boolean);
-}
 interface FeatureToggleConfig {
-    _plugins?: ((api: any) => void)[];
+    [key: FeatureFlagKey]: boolean | (() => boolean);
+    $plugins?: Plugin[];
+    /**
+     * @deprecated Use key`$plugins` instead.
+     */
+    _plugins?: Plugin[];
 }
 interface Rule {
     name: string;
@@ -100,8 +103,8 @@ interface FeatureToggleApi {
      * @param fn DefaultRule
      */
     setDefaultFlag(fn: boolean | ((result: Rule) => boolean)): void;
-    addPlugin(plugin: ((api: any) => void)): any;
+    addPlugin(plugin: Plugin): any;
 }
-declare function useFeatureToggle(visibilityConfig?: VisibilityConfig, config?: FeatureToggleConfig): FeatureToggleApi;
+declare function useFeatureToggle(config?: FeatureToggleConfig): FeatureToggleApi;
 
 export { htmlPlugin, urlPlugin, useFeatureToggle };

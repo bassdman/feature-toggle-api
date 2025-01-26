@@ -129,34 +129,33 @@ function getKey(name, variant) {
 function initVisibilities(visibilities = {}) {
     const returnVisibilities = {};
     Object.keys(visibilities).forEach(key => {
-        if (key.startsWith('_'))
+        if (key.startsWith('_') || key.startsWith('$'))
             return;
         returnVisibilities[getKey(key)] = parseToFn(visibilities[key]);
     });
     return returnVisibilities;
 }
-function useFeatureToggle(visibilityConfig = {}, config = {}) {
+function useFeatureToggle(config = {}) {
     const globals = {
         datas: {},
         listeners: {},
-        visibilities: initVisibilities(visibilityConfig),
+        visibilities: initVisibilities(config),
         showLogs: false,
         usedPlugins: [],
     };
     function init(api) {
+        const allPlugins = [...(config.$plugins || []), ...(config._plugins || [])];
         if (config._plugins) {
-            if (!Array.isArray(config._plugins))
-                throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
-            config._plugins.forEach(plugin => {
+            console.log('useFeatureToggle({_plugins:[]}): Key _plugins is deprecated. Use $plugins instead. This attribute will be removed in one of the next major versions.');
+        }
+        if (allPlugins.length) {
+            allPlugins.forEach(plugin => {
                 if (typeof plugin !== 'function')
                     throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
-                addPlugin(plugin, api);
+                plugin(api);
             });
         }
         triggerEvent('init');
-    }
-    function addPlugin(plugin, api) {
-        plugin(api);
     }
     function triggerEvent(eventtype, param) {
         (globals.listeners[eventtype] || []).forEach(listener => {
@@ -374,12 +373,11 @@ function useFeatureToggle(visibilityConfig = {}, config = {}) {
         addPlugin: function (plugin) {
             if (globals.usedPlugins.includes(plugin))
                 return;
-            addPlugin(plugin, api);
+            plugin(api);
             globals.usedPlugins.push(plugin);
         },
     };
     init(api);
-    api.setDefaultFlag;
     return api;
 }
 

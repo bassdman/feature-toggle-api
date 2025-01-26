@@ -1,99 +1,108 @@
 interface OnConfiguration {
-    ignorePreviousRules:boolean
+    ignorePreviousRules: boolean
 }
+type Plugin = (api) => void;
 
-interface OnEvent{
+interface OnEvent {
     name: string,
     variant: string,
     data: any,
-    result?:boolean
+    result?: boolean
 }
 
-interface VisibilityConfig {
-    [key:string]:boolean | (()=>boolean),
-}
+type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' |
+    'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' |
+    'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' |
+    'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
+type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
+
 interface FeatureToggleConfig {
-    _plugins?: ((api)=>void)[]
+    [key: FeatureFlagKey]: boolean | (() => boolean),
+    $plugins?: Plugin[]
+    /**
+     * @deprecated Use key`$plugins` instead.
+     */
+    _plugins?: Plugin[]
 }
 
 interface Rule {
-    name: string, 
-    variant: string, 
+    name: string,
+    variant: string,
     data: any,
     _internalCall?: true,
     description?: string
 }
 
-interface FeatureToggleApi{
+interface FeatureToggleApi {
     name: string,
-    setData( name: string,dataParam?: any ) : void;
-    setData( name: string,variant: string, dataParam?: any ) : void,
+    setData(name: string, dataParam?: any): void;
+    setData(name: string, variant: string, dataParam?: any): void,
     setData(nameParam: string, variantOrDataParam: string | { [key: string]: any },
-    dataParam?: any ) : void;
+        dataParam?: any): void;
 
-    on( eventType: string, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
-    trigger(eventtype:string,param?:any);
-    showLogs( showLogs?: boolean ) :void
+    on(eventType: string, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
+    trigger(eventtype: string, param?: any);
+    showLogs(showLogs?: boolean): void
 
-    isVisible(name:string, variant?:string, data?:any):boolean
+    isVisible(name: string, variant?: string, data?: any): boolean
 
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
      */
-    visibility(name:string,result:boolean | ((rule:Rule)=>boolean)) :void,
+    visibility(name: string, result: boolean | ((rule: Rule) => boolean)): void,
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
      */
-    visibility(name:string,variant:string|null,result: boolean | ((rule:Rule)=>boolean)):void
+    visibility(name: string, variant: string | null, result: boolean | ((rule: Rule) => boolean)): void
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
      */
-    visibility(name:string,variant:string|null,data:any,result:boolean | ((rule:Rule)=>boolean)):void,
+    visibility(name: string, variant: string | null, data: any, result: boolean | ((rule: Rule) => boolean)): void,
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
      */
-    visibility(name:string, resultOrVariant: string | null| boolean | ((rule:Rule)=>boolean) , resultOrData?:any, result?:boolean | (()=>boolean)) :void
+    visibility(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | (() => boolean)): void
 
-    setFlag(name:string,result:boolean | ((rule:Rule)=>boolean)) :void,
-    setFlag(name:string,variant:string|null,result: boolean | ((rule:Rule)=>boolean)):void,
-    setFlag(name:string,variant:string|null,data:any,result:boolean | ((rule:Rule)=>boolean)):void,
-    setFlag(name:string, resultOrVariant: string | null| boolean | ((rule:Rule)=>boolean) , resultOrData?:any, result?:boolean | (()=>boolean)) :void
+    setFlag(name: string, result: boolean | ((rule: Rule) => boolean)): void,
+    setFlag(name: string, variant: string | null, result: boolean | ((rule: Rule) => boolean)): void,
+    setFlag(name: string, variant: string | null, data: any, result: boolean | ((rule: Rule) => boolean)): void,
+    setFlag(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | (() => boolean)): void
 
     /**
      * @deprecated Use `featureToggle.setRequiredFlag` instead.
      */
-    requiredVisibility(fn:boolean | ((result:Rule)=>boolean)):void
+    requiredVisibility(fn: boolean | ((result: Rule) => boolean)): void
 
     /**
      * @deprecated Use `featureToggle.setDefaultFlag` instead.
      */
-    defaultVisibility(fn:boolean | ((result:Rule)=>boolean)):void
+    defaultVisibility(fn: boolean | ((result: Rule) => boolean)): void
 
     /**
      * This rule will run first and only if it is true, the feature.setFlag() - rules apply.
      * In other words: if the required-rule returns false, all feature.setFlag-rules return false - regardless of its normal result.
      * @param fn 
      */
-    setRequiredFlag(fn:boolean | ((result:Rule)=>boolean)):void
+    setRequiredFlag(fn: boolean | ((result: Rule) => boolean)): void
 
     /**
      * This is the default-rule and will be overwritten by feature.setFlag() - rules.
      * In other words: If feature.setFlag == false, the result of the defaultRule applies.
      * @param fn DefaultRule
      */
-    setDefaultFlag(fn:boolean | ((result:Rule)=>boolean)):void
+    setDefaultFlag(fn: boolean | ((result: Rule) => boolean)): void
 
-    addPlugin(plugin:((api)=>void))
+    addPlugin(plugin: Plugin)
 }
 
-function parseToFn(fnOrBool:boolean |((param?:any)=>boolean)) {
+function parseToFn(fnOrBool: boolean | ((param?: any) => boolean)) {
     if (typeof fnOrBool == 'boolean')
         return function () { return fnOrBool };
 
     return fnOrBool;
 }
 
-function getKey(name:string, variant?:string) : string {
+function getKey(name: string, variant?: string): string {
     var _name = name.toLowerCase();
     if (variant && typeof variant == 'string') {
         _name += "#" + variant.toLowerCase();
@@ -102,49 +111,46 @@ function getKey(name:string, variant?:string) : string {
     return _name;
 }
 
-function initVisibilities(visibilities :VisibilityConfig= {}) {
+function initVisibilities(visibilities: FeatureToggleConfig = {}) {
     const returnVisibilities = {};
     Object.keys(visibilities).forEach(key => {
-        if(key.startsWith('_'))
+        if (key.startsWith('_') || key.startsWith('$'))
             return;
         returnVisibilities[getKey(key)] = parseToFn(visibilities[key]);
     });
     return returnVisibilities;
 }
 
-function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureToggleConfig ={}) :FeatureToggleApi{
+function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
 
     const globals = {
         datas: {},
         listeners: {},
-        visibilities: initVisibilities(visibilityConfig),
+        visibilities: initVisibilities(config),
         showLogs: false,
         usedPlugins: [],
     }
 
-    function init(api){        
-        if(config._plugins)
-        {
-            if(!Array.isArray(config._plugins))
-                throw new Error('featuretoggleapi()-constructor: config.plugins must be an array.');
-            
-            config._plugins.forEach(plugin =>{
-                if(typeof plugin !== 'function')
+    function init(api) {
+        const allPlugins = [...(config.$plugins||[]),...(config._plugins||[])];
+        if(config._plugins){
+            console.log('useFeatureToggle({_plugins:[]}): Key _plugins is deprecated. Use $plugins instead. This attribute will be removed in one of the next major versions.');
+        }
+
+
+        if (allPlugins.length) {
+            allPlugins.forEach(plugin => {
+                if (typeof plugin !== 'function')
                     throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
-                
-                addPlugin(plugin,api);
+
+                plugin(api);
             });
         }
 
         triggerEvent('init');
     }
 
-    function addPlugin(plugin:(api)=>void,api):void
-    {
-        plugin(api);
-    }
-
-    function triggerEvent(eventtype:string,param?:any) {
+    function triggerEvent(eventtype: string, param?: any) {
         (globals.listeners[eventtype] || []).forEach(listener => {
             listener(param);
         });
@@ -201,7 +207,7 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
         return logAndReturn(false, `The ${functionname} returns ${calculatedVisibility}. => Please return true or false. This result (and all non-boolean results) will return false.`);
     }
 
-    function parseKey(key:string) : OnEvent{
+    function parseKey(key: string): OnEvent {
         const parts = key.split('#');
         return {
             name: parts[0],
@@ -252,7 +258,7 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
         }
     }
 
-    function getEvent(name:string, variant:string, data?, result?:any) {
+    function getEvent(name: string, variant: string, data?, result?: any) {
 
         let event;
 
@@ -264,19 +270,19 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
             return event;
 
         event.visibilityFunction = parseToFn(result);
-        event.result = event.visibilityFunction({ 
-            name: event.name, 
-            variant: event.variant, 
-            data: event.data || {}, 
+        event.result = event.visibilityFunction({
+            name: event.name,
+            variant: event.variant,
+            data: event.data || {},
             _internalCall: true,
-            description:  'When attaching a function, the result must be calculated internally. You can filter this out with the _internalCall:true -Flag.'
+            description: 'When attaching a function, the result must be calculated internally. You can filter this out with the _internalCall:true -Flag.'
         })
         return event;
     }
 
 
 
-    function isVisible(name:string, variant?:string, data?:any):boolean {
+    function isVisible(name: string, variant?: string, data?: any): boolean {
         const visibilities = globals.visibilities;
 
         log(`\nCheck Visibility of <b>Feature "${name}", variant "${variant == undefined ? '' : variant}"${data ? " with data " + JSON.stringify(data) : ""}.`);
@@ -329,9 +335,9 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
         return logAndReturn(false, 'No rules were found. This feature will be hidden.');
     }
 
-    const api : FeatureToggleApi = {
+    const api: FeatureToggleApi = {
         name: 'feature-toggle-api',
-        setData: function (nameParam, variantOrDataParam, dataParam?):void {
+        setData: function (nameParam, variantOrDataParam, dataParam?): void {
             if (nameParam == undefined)
                 throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
 
@@ -342,18 +348,19 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
 
             globals.datas[event.key] = event.data;
 
-            triggerEvent('visibilityrule',event);
+            triggerEvent('visibilityrule', event);
         },
-        on: function (eventtype:string, fn, config?) {
+        on: function (eventtype: string, fn, config?) {
             globals.listeners[eventtype] = globals.listeners[eventtype] || [];
             globals.listeners[eventtype].push(fn);
 
-            triggerEvent('registerEvent',{
+            triggerEvent('registerEvent', {
                 type: eventtype
             })
             if (config != undefined && config.ignorePreviousRules)
                 return;
 
+            
             Object.keys(globals.visibilities).forEach(key => {
                 const event = parseKey(key);
                 const rule = globals.visibilities[key];
@@ -362,7 +369,7 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
             });
         },
         trigger: triggerEvent,
-        showLogs: function (showLogs?:boolean):void {
+        showLogs: function (showLogs?: boolean): void {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
         isVisible,
@@ -373,18 +380,18 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
             visibility(name,variant,result);
             visibility(name,variant,data,result);
          */
-        setFlag(name, resultOrVariant, resultOrData?, result?){
+        setFlag(name, resultOrVariant, resultOrData?, result?) {
             const params = visibilityFnParams(name, resultOrVariant, resultOrData, result);
             const event = getEvent(params.name, params.variant, params.data, params.result);
-    
+
             globals.visibilities[event.key] = event.visibilityFunction;
             globals.datas[event.key] = event.data;
-            triggerEvent('visibilityrule',event);
+            triggerEvent('visibilityrule', event);
         },
         visibility: function (name, resultOrVariant, resultOrData?, result?) {
             console.log('featureToggle.visibility is deprecated. use featureToggle.setVisibility instead. This function will be removed in one of the next major versions.');
 
-            api.setFlag(name,resultOrVariant,resultOrData,result);
+            api.setFlag(name, resultOrVariant, resultOrData, result);
         },
         requiredVisibility: function (fn) {
             console.log('featureToggle.requiredVisibility is deprecated. use featureToggle.setRequiredFlag instead. This function will be removed in one of the next major versions.');
@@ -396,31 +403,30 @@ function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureT
 
             api.setDefaultFlag(fn);
         },
-        setRequiredFlag(fn){
+        setRequiredFlag(fn) {
             if (typeof fn != "function")
                 throw new Error('feature.setRequiredFlag(): 1st parameter must be a function, but is ' + typeof fn);
-            
+
             globals.visibilities['_required'] = parseToFn(fn);
         },
-        setDefaultFlag(fn){
+        setDefaultFlag(fn) {
             if (typeof fn != "function")
                 throw new Error('feature.defaultVisibility(): 1st parameter must be a function, but is ' + typeof fn);
-            
+
             globals.visibilities['_default'] = parseToFn(fn);
         },
-        addPlugin: function(plugin){
-            if(globals.usedPlugins.includes(plugin))
+        addPlugin: function (plugin) {
+            if (globals.usedPlugins.includes(plugin))
                 return;
-            
-            addPlugin(plugin,api);  
+
+            plugin(api);
+
             globals.usedPlugins.push(plugin);
         },
     };
     init(api);
-api.setDefaultFlag
+
     return api;
 }
 
-export {
-    useFeatureToggle
-}
+export default useFeatureToggle;
