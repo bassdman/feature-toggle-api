@@ -48,13 +48,45 @@ export default defineConfig([{
     terser()
   ]
 },{
-  input: "src/index.ts",
+  input: "src/featureToggle.ts",
   output: [
     {
       sourcemap: true,
       file: 'dist/feature-toggle.umd.min.js',
       format: 'umd',
-      name: 'featureToggle'
+      name: 'useFeatureToggle'
+    },
+  ],
+  plugins: [
+    typescript({
+      tsconfig: './tsconfig.json'
+    }),
+    terser(),
+  ]
+},{
+  input: "src/plugins/htmlplugin/plugin-html.ts",
+  output: [
+    {
+      sourcemap: true,
+      file: 'dist/html-plugin.umd.min.js',
+      format: 'umd',
+      name: 'featureToggleHtmlPlugin'
+    },
+  ],
+  plugins: [
+    typescript({
+      tsconfig: './tsconfig.json'
+    }),
+    terser(),
+  ]
+},{
+  input: "src/plugins/urlplugin/plugin-url.ts",
+  output: [
+    {
+      sourcemap: true,
+      file: 'dist/url-plugin.umd.min.js',
+      format: 'umd',
+      name: 'featureToggleURLPlugin'
     },
   ],
   plugins: [

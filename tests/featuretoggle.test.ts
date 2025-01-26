@@ -34,13 +34,13 @@ describe("Basic visibility of features", function() {
     const api = useFeatureToggle();
 
     it("should return true if parameter is boolean", function() {
-        api.visibility('featurebool', true);
+        api.setFlag('featurebool', true);
         const visibility = api.isVisible('featurebool');
         assert.strictEqual(visibility,true);
     });
 
     it("should ignore case for the api-keys", function() {
-        api.visibility('ignoreCase', true);
+        api.setFlag('ignoreCase', true);
         const visibility1 = api.isVisible('ignorecase');
         const visibility2 = api.isVisible('iGNOrEcaSe');
         assert.strictEqual(visibility1,true);
@@ -48,19 +48,19 @@ describe("Basic visibility of features", function() {
     });
 
     it("should return true if parameter is function", function() {
-        api.visibility('featurebool', function() { return true });
+        api.setFlag('featurebool', function() { return true });
         const visibility = api.isVisible('featurebool');
         assert.strictEqual(visibility,true);
     });
 
     it("should return true if feature is true", function() {
-        api.visibility('featureTrue', true);
+        api.setFlag('featureTrue', true);
         const visibility = api.isVisible('featureTrue');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if feature is false", function() {
-        api.visibility('featureFalse', false);
+        api.setFlag('featureFalse', false);
         const visibility = api.isVisible('featureFalse');
         assert.strictEqual(visibility,false);
     });
@@ -71,13 +71,13 @@ describe("Basic visibility of features", function() {
     });
 
     it("should return true if feature with variant is true", function() {
-        api.visibility('featureTrue', 'variant', true);
+        api.setFlag('featureTrue', 'variant', true);
         const visibility = api.isVisible('featureTrue', 'variant');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if feature with variant is false", function() {
-        api.visibility('featureFalse', 'variant', false);
+        api.setFlag('featureFalse', 'variant', false);
         const visibility = api.isVisible('featureFalse', 'variant');
         assert.strictEqual(visibility,false);
     });
@@ -88,25 +88,25 @@ describe("Basic visibility of features", function() {
     });
 
     it("should return true if feature with variant is requested but only featurerule exists", function() {
-        api.visibility('featureTrue', true);
+        api.setFlag('featureTrue', true);
         const visibility = api.isVisible('featureTrue', 'variant');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if data returns false", function() {
-        api.visibility('featureFalse', 'variant', function(rule) { return rule.data == 'succeed' });
+        api.setFlag('featureFalse', 'variant', function(rule) { return rule.data == 'succeed' });
         const visibility = api.isVisible('featureFalse', 'variant', 'fail');
         assert.strictEqual(visibility,false);
     });
 
     it("should return false if data returns true", function() {
-        api.visibility('featureFalse', 'variant', function(rule) { return rule.data == 'succeed' });
+        api.setFlag('featureFalse', 'variant', function(rule) { return rule.data == 'succeed' });
         const visibility = api.isVisible('featureFalse', 'variant', 'succeed');
         assert.strictEqual(visibility,true);
     });
 
     it("should pass correct parameters for visibilityrule", function() {
-        api.visibility('featureFalse2', 'variant', function(rule) {
+        api.setFlag('featureFalse2', 'variant', function(rule) {
             if (rule._internalCall)
                 return;
             assert.strictEqual(rule.name,'featureFalse2');
@@ -121,8 +121,17 @@ describe("Basic visibility of features", function() {
 
 describe("Default Visibility", function() {
     const api = useFeatureToggle();
-    api.defaultVisibility((result) => {
+    api.setDefaultFlag((result) => {
         return true;
+    });
+
+    it("should return true with legacy function-call defaultFlagif feature does not exist", function() {
+        const legacyApi = useFeatureToggle();
+        legacyApi.defaultVisibility((result) => {
+            return true;
+        });
+        const visibility = legacyApi.isVisible('featureNotExists');
+        assert.strictEqual(visibility,true);
     });
     it("should return true if feature does not exist", function() {
         const visibility = api.isVisible('featureNotExists');
@@ -135,50 +144,60 @@ describe("Default Visibility", function() {
     });
 
     it("should return false if feature is False", function() {
-        api.visibility('featureFalse', false);
+        api.setFlag('featureFalse', false);
         const visibility = api.isVisible('featureFalse');
         assert.strictEqual(visibility,false);
     });
 
     it("should return false if feature with variant isFalse", function() {
-        api.visibility('featureFalse2', false)
+        api.setFlag('featureFalse2', false)
         const visibility = api.isVisible('featureFalse2', 'variant', false);
         assert.strictEqual(visibility,false);
     });
 });
 
-describe("Required Visibility", function() {
+describe("Required Flag", function() {
     const api = useFeatureToggle();
-    api.requiredVisibility((result) => {
+    api.setRequiredFlag((result) => {
         return result.variant == "valid";
     });
 
+    it("should return true with legacy function requiredFlag if required rule matches and visibiltiyrule", function() {
+        const legacyApi = useFeatureToggle();
+        legacyApi.requiredVisibility((result) => {
+            return result.variant == "valid";
+        });
+        legacyApi.setFlag('featureTrue', true);
+        const visibility = legacyApi.isVisible('featureTrue', 'valid');
+        assert.strictEqual(visibility,true);
+    });
+
     it("should return false if feature does not exist and requirerule matches", function() {
-        api.visibility('featureNotExists', 'valid', false);
+        api.setFlag('featureNotExists', 'valid', false);
         const visibility = api.isVisible('featureNotExists', 'valid');
         assert.strictEqual(visibility,false);
     });
     it("should return false if feature does not exist and requirerule matches not", function() {
-        api.visibility('featureNotExists', 'invalid', false);
+        api.setFlag('featureNotExists', 'invalid', false);
         const visibility = api.isVisible('featureNotExists', 'invalid');
         assert.strictEqual(visibility,false);
     });
 
 
     it("should return false if only required rule matches", function() {
-        api.visibility('featureFalse', false);
+        api.setFlag('featureFalse', false);
         const visibility = api.isVisible('featureFalse', 'valid');
         assert.strictEqual(visibility,false);
     });
 
     it("should return true if required rule matches and visibiltiyrule", function() {
-        api.visibility('featureTrue', true);
+        api.setFlag('featureTrue', true);
         const visibility = api.isVisible('featureTrue', 'valid');
         assert.strictEqual(visibility,true);
     });
 
-    it("should return false if defaultVisibility returns true", function() {
-        api.defaultVisibility((result) => {
+    it("should return false if defaultFlag returns true", function() {
+        api.setDefaultFlag((result) => {
             return true;
         });
         const visibility = api.isVisible('featureTrue', 'invalid');
@@ -211,7 +230,7 @@ describe("Listener", function() {
     it("should access function twice if visibilityrule is added before listener", function() {
         var listenedEvents :string[]= [];
         var localapi = useFeatureToggle({ feature: true });
-        localapi.visibility("feature2", "variant", true);
+        localapi.setFlag("feature2", "variant", true);
         localapi.on('visibilityrule', function(event) {
             listenedEvents.push(event.name + "," + event.variant + "," + event.result);
         })
@@ -225,14 +244,14 @@ describe("Listener", function() {
         localapi.on('visibilityrule', function(event) {
             listenedEvents.push(event.name + "," + event.variant + "," + event.result);
         });
-        localapi.visibility("feature2", "variant", true);
+        localapi.setFlag("feature2", "variant", true);
 
         assert.strictEqual(JSON.stringify(listenedEvents),JSON.stringify(['feature,undefined,true', 'feature2,variant,true']));
     });
 
     it("should pass parameters as an object with result,name,variant,data", function() {
         var api = useFeatureToggle();
-        api.visibility('feature', 'variant', 'gruempfel', function(rule) {
+        api.setFlag('feature', 'variant', 'gruempfel', function(rule) {
             return (rule.data + rule.name + rule.variant) == 'gruempfelfeaturevariant';
         });
 
@@ -252,9 +271,9 @@ describe("Listener", function() {
             totalData += event.data + ',';
         });
 
-        api.visibility('feature', 'variant', 'gruempfel', true);
+        api.setFlag('feature', 'variant', 'gruempfel', true);
         api.setData('feature', 'variant', 'newgruempfel');
-        api.visibility('feature2', null, 'gruempfel2', true);
+        api.setFlag('feature2', null, 'gruempfel2', true);
         api.setData('feature2', 'newgruempfel2');
         assert.strictEqual(totalData,'gruempfel,newgruempfel,gruempfel2,newgruempfel2,');
     });

@@ -60,12 +60,46 @@ interface FeatureToggleApi {
     trigger(eventtype: string, param?: any): any;
     showLogs(showLogs?: boolean): void;
     isVisible(name: string, variant?: string, data?: any): boolean;
+    /**
+     * @deprecated Use `featureToggle.setFlag` instead.
+     */
     visibility(name: string, result: boolean | ((rule: Rule) => boolean)): void;
+    /**
+     * @deprecated Use `featureToggle.setFlag` instead.
+     */
     visibility(name: string, variant: string | null, result: boolean | ((rule: Rule) => boolean)): void;
+    /**
+     * @deprecated Use `featureToggle.setFlag` instead.
+     */
     visibility(name: string, variant: string | null, data: any, result: boolean | ((rule: Rule) => boolean)): void;
+    /**
+     * @deprecated Use `featureToggle.setFlag` instead.
+     */
     visibility(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | (() => boolean)): void;
+    setFlag(name: string, result: boolean | ((rule: Rule) => boolean)): void;
+    setFlag(name: string, variant: string | null, result: boolean | ((rule: Rule) => boolean)): void;
+    setFlag(name: string, variant: string | null, data: any, result: boolean | ((rule: Rule) => boolean)): void;
+    setFlag(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | (() => boolean)): void;
+    /**
+     * @deprecated Use `featureToggle.setRequiredFlag` instead.
+     */
     requiredVisibility(fn: boolean | ((result: Rule) => boolean)): void;
+    /**
+     * @deprecated Use `featureToggle.setDefaultFlag` instead.
+     */
     defaultVisibility(fn: boolean | ((result: Rule) => boolean)): void;
+    /**
+     * This rule will run first and only if it is true, the feature.setFlag() - rules apply.
+     * In other words: if the required-rule returns false, all feature.setFlag-rules return false - regardless of its normal result.
+     * @param fn
+     */
+    setRequiredFlag(fn: boolean | ((result: Rule) => boolean)): void;
+    /**
+     * This is the default-rule and will be overwritten by feature.setFlag() - rules.
+     * In other words: If feature.setFlag == false, the result of the defaultRule applies.
+     * @param fn DefaultRule
+     */
+    setDefaultFlag(fn: boolean | ((result: Rule) => boolean)): void;
     addPlugin(plugin: ((api: any) => void)): any;
 }
 declare function useFeatureToggle(visibilityConfig?: VisibilityConfig, config?: FeatureToggleConfig): FeatureToggleApi;

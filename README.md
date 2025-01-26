@@ -129,13 +129,13 @@ var api = useFeatureToggle({
 
 //You could also write it like this:
 var api = useFeatureToggle();
-api.visibility('feature1',true);
-api.visibility('feature2',false);
-api.visibility('feature3',function(rule){return true});
-api.visibility('feature4',true);
-api.visibility('feature4','new',false);
+api.setFlag('feature1',true);
+api.setFlag('feature2',false);
+api.setFlag('feature3',function(rule){return true});
+api.setFlag('feature4',true);
+api.setFlag('feature4','new',false);
 //only possible via functioncall: pass some data; maybe necessary in the listener
-api.visibility('feature4','new',"some custom data",false);
+api.setFlag('feature4','new',"some custom data",false);
 ```
 
 Important: A visibilityrule mustn't start with an underscore. Attributes starting with an underscore are reserved for configuration settings.
@@ -168,10 +168,10 @@ For the next examples we will imagine, the properties are mapped to the visibili
 ```javascript
 // shows Feature1
 //Feature2 is not configured, so it will be hidden
-api.visibility('feature1',true);
+api.setFlag('feature1',true);
 
 //Remember: you can also wrap it in functions - but the example above is better to read
-api.visibility('feature1',function ( rule) {
+api.setFlag('feature1',function ( rule) {
         //here would be some more complex logic, in this example we keep it simple
         return true;
 });
@@ -186,7 +186,7 @@ api.visibility('feature1',function ( rule) {
     api.isVisible('feature2','grumpfel') -> return true
     
  */
-api.visibility('feature2', true);
+api.setFlag('feature2', true);
 
 /*
     This overwrites the rule above for "feature2", variant "new"    
@@ -196,31 +196,31 @@ api.visibility('feature2', true);
     api.isVisible('feature2','old') -> return true
     api.isVisible('feature2','grumpfel') -> return true
 */
-api.visibility('feature2','new', false);
+api.setFlag('feature2','new', false);
 ```
 ```javascript
 /*
     feature.isVisible('feature3','new','grumpfel'); //returns true
     feature.isVisible('feature3','new','grumpfelbu'); //returns false
 */
-api.visibility('feature3','new', function (rule) {
+api.setFlag('feature3','new', function (rule) {
      //rule.data could also be an object or whatever you want
      //you could also use rule.name, rule.variant,...
       return rule.data == "grumpfel";
 });
 ```
 #### Default Visibility
-Bored of writing the same visibility rule again and again? Use defaultVisibility. This is the default-rule and will be overwritten by feature.visibility() - rules.
+Bored of writing the same visibility rule again and again? Use defaultFlag. This is the default-rule and will be overwritten by feature.setFlag() - rules.
 ``` javascript
-feature.defaultVisibility(function(rule){
+feature.setDefaultFlag(function(rule){
     return true;
 });
 
-feature.visibility('feature2', 'new', function(rule){
+feature.setFlag('feature2', 'new', function(rule){
     return false;
 });
 /*
-    "Feature2", variant "new" is overwritten, all other features have the defaultVisibility
+    "Feature2", variant "new" is overwritten, all other features have the defaultFlag
     api.isVisible('feature1') -> return true
     api.isVisible('feature2') -> return true
     api.isVisible('feature2','new') -> return false
@@ -244,7 +244,7 @@ This rule is always executed, before the other rules. When it returns false, the
    var globalConfig = { "feature2" : true }
 */
 
-feature.requiredVisibility(function(rule){
+feature.setRequiredFlag(function(rule){
     //In this case it returns true, when name == 'feture2'
     return globalConfig[rule.name] === true;
 });
@@ -252,14 +252,14 @@ feature.requiredVisibility(function(rule){
 /*
   feature2, variant "new" returns false, but requiredConfig returns true. Both rules must match, so it will be hidden
 */
-feature.visibility('feature2','new',function(rule){
+feature.setFlag('feature2','new',function(rule){
     return false;
 });
 
 /*
   feature3 returns true, but requiredConfig returns false. Both rules must match, so Feature3 is hidden
 */
-feature.visibility('feature3',function(rule){
+feature.setFlag('feature3',function(rule){
     return true;
 });
 
@@ -308,9 +308,9 @@ if you want to update the data without updating the whole visibilityrule, use th
         console.log(rule.data); 
     });
 
-    api.visibility('feature', 'variant','gruempfel',true); // logs 'gruempfel'
+    api.setFlag('feature', 'variant','gruempfel',true); // logs 'gruempfel'
     api.setData('feature','variant','newgruempfel');  // logs 'newgruempfel'
-    api.visibility('feature2', null,'gruempfel2',true);  // logs 'gruempfel2'
+    api.setFlag('feature2', null,'gruempfel2',true);  // logs 'gruempfel2'
     api.setData('feature2','newgruempfel2');  // logs 'newgruempfel2'
 ```
 
@@ -318,7 +318,7 @@ if you want to update the data without updating the whole visibilityrule, use th
 If you want to 'watch' every initialisation of a visibility rule, you can append a watcher on it.
 ```javascript
     var api = useFeatureToggle({feature: true});
-    api.visibility("feature2","variant","data",true);
+    api.setFlag("feature2","variant","data",true);
     
     //Calling the listener will also regard already added visibility rules
     //The result: 
@@ -418,14 +418,14 @@ feature.showLogs(); //or feature.showLogs(true);
 This returns a log like the following:
 ```html
 Check Visibility of Feature "anAmazingFeature".
-The requiredVisibility rule returns false. This feature will be hidden.
+The requiredFlag rule returns false. This feature will be hidden.
 
 Check Visibility of Feature "anotherAmazingFeature", variant "new" with data {"id":"bla"}.
-The requiredVisibility rule returns true. This feature will be shown when no other rule rejects it.
+The requiredFlag rule returns true. This feature will be shown when no other rule rejects it.
 No visibility rule found matching name and variant.
 No rules found for name anotherAmazingFeature without variants.
 No default rule found.
-Only the requiredVisibility rule was found. This returned true. => This feature will be visible.
+Only the requiredFlag rule was found. This returned true. => This feature will be visible.
 ```
 With this you don't have to waste your time with debugging the visibility state. 
 
@@ -460,19 +460,19 @@ Returns:
     nothing
 ```javascript
 //possible parameters
-api.visibility(name,result);
-api.visibility(name,variant,result);
-api.visibility(name,variant,data,result);
+api.setFlag(name,result);
+api.setFlag(name,variant,result);
+api.setFlag(name,variant,data,result);
 ```
 Example: 
 ```javascript
 //possible parameters
-api.visibility('name',true);
-api.visibility('name','variant',true);
-api.visibility('name','variant','data',true);
+api.setFlag('name',true);
+api.setFlag('name','variant',true);
+api.setFlag('name','variant','data',true);
 
 //if result is a function
-api.visibility('name',function(rule){
+api.setFlag('name',function(rule){
     /*
     rule has the following parameters
         name: Name of the feature,
@@ -561,18 +561,18 @@ Returns
      api.setData(name,variant,data);
 ```
 
-### requiredVisibility
+### requiredFlag
 Sets the function for the required visibility.
 
 Parameters: 
- - requiredVisibilityFunction
+ - requiredFlagFunction
 
 Returns:
  - nothing
 
 ```javascript
 //possible parameters
-api.requiredVisibility(function(rule){
+api.setRequiredFlag(function(rule){
     //do sth
     /* Parameters: 
         event.name, 
@@ -582,18 +582,18 @@ api.requiredVisibility(function(rule){
 });
 ```
 
-### defaultVisibility
+### defaultFlag
 Sets the function for the default visibility.
 
 Parameters: 
- - defaultVisibilityFunction
+ - defaultFlagFunction
 
 Returns:
  - nothing
 
 ```javascript
 //possible parameters
-api.defaultVisibility(function(rule){
+api.setDefaultFlag(function(rule){
     //do sth
     /* Parameters: 
         event.name, 
