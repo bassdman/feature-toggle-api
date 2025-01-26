@@ -1,3 +1,27 @@
+interface URLPluginConfig{
+    useMockedWindow?: boolean,
+    url?: string,
+    prefix?: string
+
+}
+
+function useWindowMock(){
+    return {
+        isMocked: true,
+        decodeURIComponent:function(param1){
+            return param1;
+        }
+    }
+}
+
+declare global {
+    interface Window {
+      isMocked: boolean
+    }
+  }
+
+  declare var window: Window;
+
 function parseValue(value){
     if(value === 'true')
         return true;
@@ -28,12 +52,16 @@ function getParams(url,window) {
     return params;
   }
 
- function urlplugin(config={}) {
-    if(config.window)
-        window = config.window;
+ function urlPlugin(config: URLPluginConfig={}) {
+    let _window;
+
+    if(config.useMockedWindow)
+        _window = useWindowMock();
+    else
+        _window = window;
     
     config = Object.assign({},{
-        url: window.isMocked ? "" : window.location.href,
+        url: _window.isMocked ? "" : _window.location.href,
         prefix: ""
     },config);
 
@@ -41,7 +69,7 @@ function getParams(url,window) {
 
     return function(api){
         api.url = config.url;
-        const urlparams = getParams(config.url,window);
+        const urlparams = getParams(config.url,_window);
         const prefix = config.prefix;
 
         Object.keys(urlparams).forEach(key => {
@@ -57,8 +85,6 @@ function getParams(url,window) {
 
 }
 
-if(typeof window !== 'undefined')
-    window.urlplugin = urlplugin;
-
-if(typeof module !== 'undefined')
-    module.exports = urlplugin;
+export {
+    urlPlugin
+}

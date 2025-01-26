@@ -1,3 +1,16 @@
+type Display = 'block' | 'inline-block' | 'inline' | 'flex' | 'inline-flex' | 'grid' | 'inline-grid';
+
+interface HtmlPluginConfig {
+    renderedTag?: string,
+    featureTagName?: string,
+    tagAttributeName?: string,
+    nameAttributeName?:string,
+    variantAttributeName?: string,
+    dataAttributeName?: string,
+    displayAttributeName?: string,
+    defaultDisplay?: Display,
+}
+
 /*
     creates a tag that is shown / hidden, depending on the visibility rules.
     if not configured dynamically, it looks like this:
@@ -8,7 +21,7 @@
     - nameAttributeName: Name of the Name-Attribute: default: "name"
     - variantAttributeName: Name of the Variant-Attribute: default: "variant"
 */
-const defaultparams = {
+const defaultparams :HtmlPluginConfig = {
     renderedTag: 'div',
     featureTagName: 'feature',
     tagAttributeName: 'tag',
@@ -31,10 +44,10 @@ function parseDataAttribute(attrAsString){
     }
 }
 
-function htmlplugin(config = {}) {
+function htmlPlugin(config :HtmlPluginConfig = {}) {
     config = Object.assign({},defaultparams,config);
 
-    function renderFeatureTag(elem,isVisible){
+    function renderFeatureTag(elem:HTMLElement,isVisible){
         const tagname = elem.getAttribute(config.tagAttributeName) || config.renderedTag;
         const attributes = Array.from(elem.attributes);
         let attributesAsString = "";
@@ -43,15 +56,15 @@ function htmlplugin(config = {}) {
         });
         const display = isVisible ? (elem.getAttribute(config.displayAttributeName) || config.defaultDisplay) : 'none';
         elem.outerHTML = `<${tagname}  style="display:${display}" _feature="true" ${attributesAsString}>${elem.innerHTML}</${tagname}>`;
-    }
+    } 
     return function (api) {
-        var renderedTags = window.document.querySelectorAll(config.featureTagName);
+        var renderedTags :NodeListOf<HTMLElement> = window.document.querySelectorAll(config.featureTagName);
         renderedTags.forEach(tag => { renderFeatureTag(tag,false) });
 
         api.on('visibilityrule', function (event) {
             var selector = `[_feature][${config.nameAttributeName}="${event.name}"]`;
             if (event.variant) selector += `[${config.variantAttributeName}="${event.variant}"]`;
-            var elements = document.querySelectorAll(selector);
+            var elements :NodeListOf<HTMLElement> = document.querySelectorAll(selector);
             elements.forEach(elem => { 
                 const dataAsString = elem.getAttribute(config.dataAttributeName);
                 const data = parseDataAttribute(dataAsString);
@@ -64,8 +77,7 @@ function htmlplugin(config = {}) {
         return { name: 'htmlplugin' };
     }
 }
-if(typeof window !== 'undefined')
-    window.htmlplugin = htmlplugin;
 
-if(typeof module !== 'undefined')
-    module.exports = htmlplugin;
+export {
+    htmlPlugin
+}

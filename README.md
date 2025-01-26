@@ -58,6 +58,34 @@ Create a new project, type
 ``` shell
     npm install feature-toggle-api --save
 ```
+
+Use it in your script
+``` javascript
+import { useFeatureToggle } from "feature-toggle-api";
+
+//initialize it with your feature-flags
+const feature = useFeatureToggle({      
+    a:true, 
+});
+
+console.log(feature.isVisible('a')); //true
+console.log(feature.isVisible('c')); //false
+```
+
+You use commonjs-scripts? Here we go:
+``` javascript
+const { useFeatureToggle } = require("feature-toggle-api/dist/feature-toggle.cjs");
+
+//initialize it with your feature-flags
+const feature = useFeatureToggle({      
+    a:true, 
+});
+
+console.log(feature.isVisible('a')); //true
+console.log(feature.isVisible('c')); //false
+```
+
+
 You want to include it as a scripttag? Here's a sample HTML-File. 
 ``` html
 <!DOCTYPE html>
@@ -65,13 +93,13 @@ You want to include it as a scripttag? Here's a sample HTML-File.
 <head>
     <meta charset="UTF-8">
     <title>Basic Feature-Toggle-API-Test</title>
-    <script src="../feature-toggle-api.min.js"></script>
+    <script src="../path/to/feature-toggle-api/dist/feature-toggle.umd.min.js"></script>
 </head>
 <body>
     <div class="feature1">This is text from feature1</div>
     <div class="feature2">This is text from feature2</div>
     <script>
-        var api = featuretoggleapi({
+        var api = featureToggle.useFeatureToggle({
             feature1: true
         });
         var feature1Visible = api.isVisible('feature1');
@@ -84,23 +112,13 @@ You want to include it as a scripttag? Here's a sample HTML-File.
 </body>
 </html>
 ```
-You have a node-module? Nothing is easier then that:
-``` javascript
-var featuretoggleapi = require('feature-toggle-api');
-var api = featuretoggleapi({
-    feature1: true
-});
-var feature1Visible = api.isVisible('feature1');
-var feature2Visible = api.isVisible('feature2');
 
-//now you can do sth with the visibilities
-```
 
 ### Initialisation
 Initialisation is very simple
 ```javascript
 //This api has already initialized some visiblity rules:
-var api = new featuretoggleapi({
+var api = useFeatureToggle({
     feature1: true, //feature1 will be shown
     feature2: false, //feature2 won't be shown,
     // a rule can also be a function. important: it must return a boolean value; feature 3 would be shown
@@ -110,7 +128,7 @@ var api = new featuretoggleapi({
 });
 
 //You could also write it like this:
-var api = new featuretoggleapi();
+var api = useFeatureToggle();
 api.visibility('feature1',true);
 api.visibility('feature2',false);
 api.visibility('feature3',function(rule){return true});
@@ -212,7 +230,7 @@ feature.visibility('feature2', 'new', function(rule){
 ```
 You already want to initialize it in the constructor? No Problem.
 ```javascript
-    var api = new featuretoggleapi({
+    var api = useFeatureToggle({
     _default: true, //default visibility always returns true; again: this could also be a function
  });
 ```
@@ -257,7 +275,7 @@ feature.visibility('feature3',function(rule){
 ```
 You already want to initialize it in the constructor? No Problem.
 ```javascript
-    var api = new featuretoggleapi({
+    var api = useFeatureToggle({
     _required: true, //default visibility always returns true; again: this could also be a function
  });
 ```
@@ -299,7 +317,7 @@ if you want to update the data without updating the whole visibilityrule, use th
 #### Listeners
 If you want to 'watch' every initialisation of a visibility rule, you can append a watcher on it.
 ```javascript
-    var api = new featureToggleApi({feature: true});
+    var api = useFeatureToggle({feature: true});
     api.visibility("feature2","variant","data",true);
     
     //Calling the listener will also regard already added visibility rules
@@ -313,7 +331,7 @@ If you want to 'watch' every initialisation of a visibility rule, you can append
 
 You can also add custom events and triggers whenever you want.
 ```javascript
-    var api = new featureToggleApi();
+    var api = useFeatureToggle();
     api.on('customevent', function (param) {
         console.log("customevent " + param);
     });
@@ -422,9 +440,10 @@ With this you don't have to waste your time with debugging the visibility state.
 
 ```javascript
 //initializes a visibilityrule and adds a plugin
-var api = new featuretoggleapi({
+var api = useFeatureToggle({
     feature1: true,
-    _plugins: []
+},{
+    plugins:[]
 })
 ```
 

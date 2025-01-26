@@ -1,21 +1,73 @@
+import { urlPlugin } from "./plugins/urlplugin/plugin-url"
+import { htmlPlugin } from "./plugins/htmlplugin/plugin-html"
 
-const parseToFn = function (fnOrBool) {
+interface OnConfiguration {
+    ignorePreviousRules:boolean
+}
+
+interface OnEvent{
+    name: string,
+    variant: string,
+    data: any,
+    result?:boolean
+}
+
+interface VisibilityConfig {
+    [key:string]:boolean | (()=>boolean),
+}
+interface FeatureToggleConfig {
+    _plugins?: ((api)=>void)[]
+}
+
+interface Rule {
+    name: string, 
+    variant: string, 
+    data: any,
+    _internalCall?: true,
+    description?: string
+}
+
+interface FeatureToggleApi{
+    name: string,
+    setData( name: string,dataParam?: any ) : void;
+    setData( name: string,variant: string, dataParam?: any ) : void,
+    setData(nameParam: string, variantOrDataParam: string | { [key: string]: any },
+    dataParam?: any ) : void;
+
+    on( eventType: string, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
+    trigger(eventtype:string,param?:any);
+    showLogs( showLogs?: boolean ) :void
+
+    isVisible(name:string, variant?:string, data?:any):boolean
+
+    visibility(name:string,result:boolean | ((rule:Rule)=>boolean)) :void,
+    visibility(name:string,variant:string|null,result: boolean | ((rule:Rule)=>boolean)):void,
+    visibility(name:string,variant:string|null,data:any,result:boolean | ((rule:Rule)=>boolean)):void,
+    visibility(name:string, resultOrVariant: string | null| boolean | ((rule:Rule)=>boolean) , resultOrData?:any, result?:boolean | (()=>boolean)) :void
+
+    requiredVisibility(fn:boolean | ((result:Rule)=>boolean)):void
+    defaultVisibility(fn:boolean | ((result:Rule)=>boolean)):void
+
+    addPlugin(plugin:((api)=>void))
+}
+
+function parseToFn(fnOrBool:boolean |((param?:any)=>boolean)) {
     if (typeof fnOrBool == 'boolean')
         return function () { return fnOrBool };
 
     return fnOrBool;
 }
 
-const getKey = function (name, variant) {
+function getKey(name:string, variant?:string) : string {
     var _name = name.toLowerCase();
-    if (typeof variant == 'string') {
+    if (variant && typeof variant == 'string') {
         _name += "#" + variant.toLowerCase();
     }
 
     return _name;
 }
 
-function initVisibilities(visibilities = {}) {
+function initVisibilities(visibilities :VisibilityConfig= {}) {
     const returnVisibilities = {};
     Object.keys(visibilities).forEach(key => {
         if(key.startsWith('_'))
@@ -25,12 +77,12 @@ function initVisibilities(visibilities = {}) {
     return returnVisibilities;
 }
 
-export default function featuretoggleapi(config={}) {
+function useFeatureToggle(visibilityConfig:VisibilityConfig={},config : FeatureToggleConfig ={}) :FeatureToggleApi{
 
     const globals = {
         datas: {},
         listeners: {},
-        visibilities: initVisibilities(config),
+        visibilities: initVisibilities(visibilityConfig),
         showLogs: false,
         usedPlugins: [],
     }
@@ -52,12 +104,12 @@ export default function featuretoggleapi(config={}) {
         triggerEvent('init');
     }
 
-    function addPlugin(plugin,api)
+    function addPlugin(plugin:(api)=>void,api):void
     {
         plugin(api);
     }
 
-    function triggerEvent(eventtype,param) {
+    function triggerEvent(eventtype:string,param?:any) {
         (globals.listeners[eventtype] || []).forEach(listener => {
             listener(param);
         });
@@ -114,7 +166,7 @@ export default function featuretoggleapi(config={}) {
         return logAndReturn(false, `The ${functionname} returns ${calculatedVisibility}. => Please return true or false. This result (and all non-boolean results) will return false.`);
     }
 
-    function parseKey(key) {
+    function parseKey(key:string) : OnEvent{
         const parts = key.split('#');
         return {
             name: parts[0],
@@ -165,11 +217,11 @@ export default function featuretoggleapi(config={}) {
         }
     }
 
-    function getEvent(name, variant, data, result) {
+    function getEvent(name:string, variant:string, data?, result?:any) {
 
         let event;
 
-        event = { name: name, variant: variant, data: data };
+        event = { name, variant, data };
 
         event.key = getKey(event.name, event.variant);
 
@@ -189,7 +241,7 @@ export default function featuretoggleapi(config={}) {
 
 
 
-    function isVisible(name, variant, data) {
+    function isVisible(name:string, variant?:string, data?:any):boolean {
         const visibilities = globals.visibilities;
 
         log(`\nCheck Visibility of <b>Feature "${name}", variant "${variant == undefined ? '' : variant}"${data ? " with data " + JSON.stringify(data) : ""}.`);
@@ -242,13 +294,13 @@ export default function featuretoggleapi(config={}) {
         return logAndReturn(false, 'No rules were found. This feature will be hidden.');
     }
 
-    const api = {
+    const api : FeatureToggleApi = {
         name: 'feature-toggle-api',
-        setData: function (nameParam, variantOrDataParam, dataParam) {
+        setData: function (nameParam, variantOrDataParam, dataParam?):void {
             if (nameParam == undefined)
                 throw new Error('setData(): The name must of the feature must be defined, but ist undefined');
 
-            const variant = dataParam != undefined ? variantOrDataParam : undefined;
+            const variant = (dataParam != undefined ? variantOrDataParam : undefined) as string;
             const data = dataParam || variantOrDataParam;
 
             const event = getEvent(nameParam, variant, data);
@@ -257,7 +309,7 @@ export default function featuretoggleapi(config={}) {
 
             triggerEvent('visibilityrule',event);
         },
-        on: function (eventtype, fn, config) {
+        on: function (eventtype:string, fn, config?) {
             globals.listeners[eventtype] = globals.listeners[eventtype] || [];
             globals.listeners[eventtype].push(fn);
 
@@ -268,25 +320,26 @@ export default function featuretoggleapi(config={}) {
                 return;
 
             Object.keys(globals.visibilities).forEach(key => {
-                const event = parseKey(key, globals);
+                const event = parseKey(key);
                 const rule = globals.visibilities[key];
                 event.result = rule(event);
                 fn(event);
             });
         },
         trigger: triggerEvent,
-        showLogs: function (showLogs) {
+        showLogs: function (showLogs?:boolean):void {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
         isVisible,
-        /*
+       /**
             the following function calls are possible:
             visibility(name,result);
             visibility(name,variant,result);
             visibility(name,variant,data,result);
-        */
-        visibility: function (param1, param2, param3, param4) {
-            const params = visibilityFnParams(param1, param2, param3, param4);
+         * @deprecated Use `newFunction` instead.
+         */
+        visibility: function (name, resultOrVariant, resultOrData?, result?):void {
+            const params = visibilityFnParams(name, resultOrVariant, resultOrData, result);
             const event = getEvent(params.name, params.variant, params.data, params.result);
 
             globals.visibilities[event.key] = event.visibilityFunction;
@@ -314,5 +367,12 @@ export default function featuretoggleapi(config={}) {
         },
     };
     init(api);
+
     return api;
+}
+
+export {
+    useFeatureToggle,
+    urlPlugin,
+    htmlPlugin
 }

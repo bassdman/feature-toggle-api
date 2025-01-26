@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "emitDeclarationOnly": false,     // Nur Deklarationen ausgeben (false, damit auch JS kompiliert wird)
+    "outDir": "dist", // Ausgabeort für die Typen
+    "module": "ESNext", // Oder das Modulformat deiner Wahl
+    "target": "ESNext",
+    "moduleResolution": "node"
+  },
+    "include": ["src/**/*.ts"],  // Eingeschlossene Dateien
+    "exclude": ["node_modules"]  ,
+      
+  }
