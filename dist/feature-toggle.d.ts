@@ -37,6 +37,12 @@ interface OnEvent {
     data: any;
     result?: boolean;
 }
+
+type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' |
+    'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
+    
+type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
+
 interface FeatureToggleConfig {
     [key: FeatureFlagKey]: boolean | (() => boolean);
     $plugins?: Plugin[];
@@ -62,7 +68,11 @@ interface FeatureToggleApi {
     on(eventType: string, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
     trigger(eventtype: string, param?: any): any;
     showLogs(showLogs?: boolean): void;
+    /**
+     * @deprecated Use `featureToggle.isActive` instead.
+     */
     isVisible(name: string, variant?: string, data?: any): boolean;
+    isActive(name: string, variant?: string, data?: any): boolean;
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
      */

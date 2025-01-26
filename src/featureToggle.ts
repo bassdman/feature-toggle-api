@@ -10,10 +10,9 @@ interface OnEvent {
     result?: boolean
 }
 
-type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' |
-    'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' |
-    'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' |
-    'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z'
+type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' |
+    'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
+    
 type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
 
 interface FeatureToggleConfig {
@@ -44,7 +43,12 @@ interface FeatureToggleApi {
     trigger(eventtype: string, param?: any);
     showLogs(showLogs?: boolean): void
 
+    /**
+     * @deprecated Use `featureToggle.isActive` instead.
+     */
     isVisible(name: string, variant?: string, data?: any): boolean
+
+    isActive(name: string, variant?: string, data?: any): boolean
 
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
@@ -282,7 +286,7 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
 
 
 
-    function isVisible(name: string, variant?: string, data?: any): boolean {
+    function isActive(name: string, variant?: string, data?: any): boolean {
         const visibilities = globals.visibilities;
 
         log(`\nCheck Visibility of <b>Feature "${name}", variant "${variant == undefined ? '' : variant}"${data ? " with data " + JSON.stringify(data) : ""}.`);
@@ -372,8 +376,11 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
         showLogs: function (showLogs?: boolean): void {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
-        isVisible,
-
+        isVisible(name,variant,data){
+            console.log('featureToggle.isVisible is deprecated. use featureToggle.isActive instead. This function will be removed in one of the next major versions.');
+            return isActive(name,variant,data);
+        },
+        isActive,
         /**
             the following function calls are possible:
             visibility(name,result);

@@ -16,92 +16,98 @@ describe("Initialisation / Basic Tests", function() {
 
     it("should return true if feature is initialized in constructor", function() {
         const api = useFeatureToggle({ feature: true });
-        assert.strictEqual(api.isVisible('feature'),true);
+        assert.strictEqual(api.isActive('feature'),true);
     });
 
     it("should return true if feature with variant is initialized in constructor", function() {
         const api = useFeatureToggle({ "feature#variant": true });
-        assert.strictEqual(api.isVisible('feature','variant'),true);
+        assert.strictEqual(api.isActive('feature','variant'),true);
     });
 
     it("should return true if feature with variant is initialized in constructor with function", function() {
         const api = useFeatureToggle({ "feature#variant": true });
-        assert.strictEqual(api.isVisible('feature','variant'),true);
+        assert.strictEqual(api.isActive('feature','variant'),true);
     });
 });
 
 describe("Basic visibility of features", function() {
     const api = useFeatureToggle();
 
-    it("should return true if parameter is boolean", function() {
+    it("should return true if parameter is boolean with legacy fn isVisible", function() {
         api.setFlag('featurebool', true);
         const visibility = api.isVisible('featurebool');
         assert.strictEqual(visibility,true);
     });
 
+    it("should return true if parameter is boolean", function() {
+        api.setFlag('featurebool', true);
+        const visibility = api.isActive('featurebool');
+        assert.strictEqual(visibility,true);
+    });
+
     it("should ignore case for the api-keys", function() {
         api.setFlag('ignoreCase', true);
-        const visibility1 = api.isVisible('ignorecase');
-        const visibility2 = api.isVisible('iGNOrEcaSe');
+        const visibility1 = api.isActive('ignorecase');
+        const visibility2 = api.isActive('iGNOrEcaSe');
         assert.strictEqual(visibility1,true);
         assert.strictEqual(visibility2,true);
     });
 
     it("should return true if parameter is function", function() {
         api.setFlag('featurebool', function() { return true });
-        const visibility = api.isVisible('featurebool');
+        const visibility = api.isActive('featurebool');
         assert.strictEqual(visibility,true);
     });
 
     it("should return true if feature is true", function() {
         api.setFlag('featureTrue', true);
-        const visibility = api.isVisible('featureTrue');
+        const visibility = api.isActive('featureTrue');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if feature is false", function() {
         api.setFlag('featureFalse', false);
-        const visibility = api.isVisible('featureFalse');
+        const visibility = api.isActive('featureFalse');
         assert.strictEqual(visibility,false);
     });
 
     it("should return false if feature does not exist", function() {
-        const visibility = api.isVisible('featureNotExists');
+        const visibility = api.isActive('featureNotExists');
         assert.strictEqual(visibility,false);
     });
 
     it("should return true if feature with variant is true", function() {
         api.setFlag('featureTrue', 'variant', true);
-        const visibility = api.isVisible('featureTrue', 'variant');
+        const visibility = api.isActive('featureTrue', 'variant');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if feature with variant is false", function() {
         api.setFlag('featureFalse', 'variant', false);
-        const visibility = api.isVisible('featureFalse', 'variant');
+        const visibility = api.isActive('featureFalse', 'variant');
         assert.strictEqual(visibility,false);
     });
 
     it("should return false if feature with variant does not exist", function() {
-        const visibility = api.isVisible('featureNotExists', 'variant', false);
+        const visibility = api.isActive('featureNotExists', 'variant', false);
         assert.strictEqual(visibility,false);
     });
 
     it("should return true if feature with variant is requested but only featurerule exists", function() {
         api.setFlag('featureTrue', true);
-        const visibility = api.isVisible('featureTrue', 'variant');
+        const visibility = api.isActive('featureTrue', 'variant');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if data returns false", function() {
         api.setFlag('featureFalse', 'variant', function(rule) { return rule.data == 'succeed' });
-        const visibility = api.isVisible('featureFalse', 'variant', 'fail');
+        const visibility = api.isActive('featureFalse', 'variant', 'fail');
         assert.strictEqual(visibility,false);
     });
 
     it("should return false if data returns true", function() {
         api.setFlag('featureFalse', 'variant', function(rule) { return rule.data == 'succeed' });
-        const visibility = api.isVisible('featureFalse', 'variant', 'succeed');
+        const visibility = api.isActive('featureFalse', 'variant', 'succeed');
         assert.strictEqual(visibility,true);
     });
 
@@ -114,7 +120,7 @@ describe("Basic visibility of features", function() {
             assert.strictEqual(rule.data,'succeed');
         });
 
-        api.isVisible('featureFalse2', 'variant', 'succeed');
+        api.isActive('featureFalse2', 'variant', 'succeed');
 
     });
 });
@@ -130,28 +136,28 @@ describe("Default Visibility", function() {
         legacyApi.defaultVisibility((result) => {
             return true;
         });
-        const visibility = legacyApi.isVisible('featureNotExists');
+        const visibility = legacyApi.isActive('featureNotExists');
         assert.strictEqual(visibility,true);
     });
     it("should return true if feature does not exist", function() {
-        const visibility = api.isVisible('featureNotExists');
+        const visibility = api.isActive('featureNotExists');
         assert.strictEqual(visibility,true);
     });
 
     it("should return true if feature withVariant does not exist", function() {
-        const visibility = api.isVisible('featureNotExists', 'variant');
+        const visibility = api.isActive('featureNotExists', 'variant');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if feature is False", function() {
         api.setFlag('featureFalse', false);
-        const visibility = api.isVisible('featureFalse');
+        const visibility = api.isActive('featureFalse');
         assert.strictEqual(visibility,false);
     });
 
     it("should return false if feature with variant isFalse", function() {
         api.setFlag('featureFalse2', false)
-        const visibility = api.isVisible('featureFalse2', 'variant', false);
+        const visibility = api.isActive('featureFalse2', 'variant', false);
         assert.strictEqual(visibility,false);
     });
 });
@@ -168,31 +174,31 @@ describe("Required Flag", function() {
             return result.variant == "valid";
         });
         legacyApi.setFlag('featureTrue', true);
-        const visibility = legacyApi.isVisible('featureTrue', 'valid');
+        const visibility = legacyApi.isActive('featureTrue', 'valid');
         assert.strictEqual(visibility,true);
     });
 
     it("should return false if feature does not exist and requirerule matches", function() {
         api.setFlag('featureNotExists', 'valid', false);
-        const visibility = api.isVisible('featureNotExists', 'valid');
+        const visibility = api.isActive('featureNotExists', 'valid');
         assert.strictEqual(visibility,false);
     });
     it("should return false if feature does not exist and requirerule matches not", function() {
         api.setFlag('featureNotExists', 'invalid', false);
-        const visibility = api.isVisible('featureNotExists', 'invalid');
+        const visibility = api.isActive('featureNotExists', 'invalid');
         assert.strictEqual(visibility,false);
     });
 
 
     it("should return false if only required rule matches", function() {
         api.setFlag('featureFalse', false);
-        const visibility = api.isVisible('featureFalse', 'valid');
+        const visibility = api.isActive('featureFalse', 'valid');
         assert.strictEqual(visibility,false);
     });
 
     it("should return true if required rule matches and visibiltiyrule", function() {
         api.setFlag('featureTrue', true);
-        const visibility = api.isVisible('featureTrue', 'valid');
+        const visibility = api.isActive('featureTrue', 'valid');
         assert.strictEqual(visibility,true);
     });
 
@@ -200,7 +206,7 @@ describe("Required Flag", function() {
         api.setDefaultFlag((result) => {
             return true;
         });
-        const visibility = api.isVisible('featureTrue', 'invalid');
+        const visibility = api.isActive('featureTrue', 'invalid');
         assert.strictEqual(visibility,false);
     });
 });
@@ -328,7 +334,7 @@ describe("Plugins", function() {
         var api = useFeatureToggle({ $plugins: [newPlugin] });
 
         assert.strictEqual(api.newplugin,true);
-        assert.strictEqual(api.isVisible('_plugin'),false);
+        assert.strictEqual(api.isActive('_plugin'),false);
     });
 
     it("should only be executed once", function() {
@@ -376,8 +382,8 @@ describe("URL-Plugin", function() {
         var api = useFeatureToggle({
             $plugins: [urlPlugin({ url: 'anydomain.de?feature1=true', useMockedWindow:true })]
         });
-        const visibilityF1 = api.isVisible("feature1");
-        const visibilityF2 = api.isVisible("feature2");
+        const visibilityF1 = api.isActive("feature1");
+        const visibilityF2 = api.isActive("feature2");
         assert.strictEqual(visibilityF1,true);
         assert.strictEqual(visibilityF2,false);
     })
@@ -389,10 +395,10 @@ describe("URL-Plugin", function() {
                 useMockedWindow:true
             })]
         });
-        const visibilityF1 = api.isVisible("feature1");
-        const visibilityF2 = api.isVisible("feature2");
-        const visibility_F1 = api.isVisible("_feature1");
-        const visibility_F2 = api.isVisible("_feature2");
+        const visibilityF1 = api.isActive("feature1");
+        const visibilityF2 = api.isActive("feature2");
+        const visibility_F1 = api.isActive("_feature1");
+        const visibility_F2 = api.isActive("_feature2");
         assert.strictEqual(visibilityF1,false);
         assert.strictEqual(visibilityF2,true);
         assert.strictEqual(visibility_F1,false);

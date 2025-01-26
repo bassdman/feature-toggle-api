@@ -99,7 +99,7 @@ export default defineConfig([{
   input: 'src/index.ts',
   output: {
     file: 'dist/feature-toggle.d.ts',
-    format: 'es',
+    format: 'esm',
   },
   plugins: [
     dts(),

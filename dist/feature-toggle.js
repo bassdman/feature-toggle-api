@@ -265,7 +265,7 @@ function useFeatureToggle(config = {}) {
         });
         return event;
     }
-    function isVisible(name, variant, data) {
+    function isActive(name, variant, data) {
         const visibilities = globals.visibilities;
         log(`\nCheck Visibility of <b>Feature "${name}", variant "${variant == undefined ? '' : variant}"${data ? " with data " + JSON.stringify(data) : ""}.`);
         if (name == undefined)
@@ -334,7 +334,11 @@ function useFeatureToggle(config = {}) {
         showLogs: function (showLogs) {
             globals.showLogs = showLogs == undefined ? true : showLogs;
         },
-        isVisible,
+        isVisible(name, variant, data) {
+            console.log('featureToggle.isVisible is deprecated. use featureToggle.isActive instead. This function will be removed in one of the next major versions.');
+            return isActive(name, variant, data);
+        },
+        isActive,
         /**
             the following function calls are possible:
             visibility(name,result);

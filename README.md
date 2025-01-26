@@ -68,8 +68,8 @@ const feature = useFeatureToggle({
     a:true, 
 });
 
-console.log(feature.isVisible('a')); //true
-console.log(feature.isVisible('c')); //false
+console.log(feature.isActive('a')); //true
+console.log(feature.isActive('c')); //false
 ```
 
 You use commonjs-scripts? Here we go:
@@ -81,8 +81,8 @@ const feature = useFeatureToggle({
     a:true, 
 });
 
-console.log(feature.isVisible('a')); //true
-console.log(feature.isVisible('c')); //false
+console.log(feature.isActive('a')); //true
+console.log(feature.isActive('c')); //false
 ```
 
 
@@ -102,8 +102,8 @@ Or you want to include it as a scripttag? Here's a sample HTML-File.
         var api = useFeatureToggle({
             feature1: true
         });
-        var feature1Visible = api.isVisible('feature1');
-        var feature2Visible = api.isVisible('feature2');
+        var feature1Visible = api.isActive('feature1');
+        var feature2Visible = api.isActive('feature2');
         
         //here we could also use jquery or any other library,... The api has done its job.
         if(!feature1Visible) document.querySelector(".feature1").style.display = 'none';
@@ -179,29 +179,29 @@ api.setFlag('feature1',function ( rule) {
 ```javascript
 /* 
     shows all features with name feature2, in this case: 
-    api.isVisible('feature1') -> return false
-    api.isVisible('feature2') -> return true
-    api.isVisible('feature2','new') -> return true
-    api.isVisible('feature2','old') -> return true
-    api.isVisible('feature2','grumpfel') -> return true
+    api.isActive('feature1') -> return false
+    api.isActive('feature2') -> return true
+    api.isActive('feature2','new') -> return true
+    api.isActive('feature2','old') -> return true
+    api.isActive('feature2','grumpfel') -> return true
     
  */
 api.setFlag('feature2', true);
 
 /*
     This overwrites the rule above for "feature2", variant "new"    
-    api.isVisible('feature1') -> return false
-    api.isVisible('feature2') -> return true - because of rule above 
-    api.isVisible('feature2','new') -> return false
-    api.isVisible('feature2','old') -> return true
-    api.isVisible('feature2','grumpfel') -> return true
+    api.isActive('feature1') -> return false
+    api.isActive('feature2') -> return true - because of rule above 
+    api.isActive('feature2','new') -> return false
+    api.isActive('feature2','old') -> return true
+    api.isActive('feature2','grumpfel') -> return true
 */
 api.setFlag('feature2','new', false);
 ```
 ```javascript
 /*
-    feature.isVisible('feature3','new','grumpfel'); //returns true
-    feature.isVisible('feature3','new','grumpfelbu'); //returns false
+    feature.isActive('feature3','new','grumpfel'); //returns true
+    feature.isActive('feature3','new','grumpfelbu'); //returns false
 */
 api.setFlag('feature3','new', function (rule) {
      //rule.data could also be an object or whatever you want
@@ -221,11 +221,11 @@ feature.setFlag('feature2', 'new', function(rule){
 });
 /*
     "Feature2", variant "new" is overwritten, all other features have the defaultFlag
-    api.isVisible('feature1') -> return true
-    api.isVisible('feature2') -> return true
-    api.isVisible('feature2','new') -> return false
-    api.isVisible('feature2','old') -> return true
-    api.isVisible('feature2','grumpfel') -> return true
+    api.isActive('feature1') -> return true
+    api.isActive('feature2') -> return true
+    api.isActive('feature2','new') -> return false
+    api.isActive('feature2','old') -> return true
+    api.isActive('feature2','grumpfel') -> return true
 */
 ```
 You already want to initialize it in the constructor? No Problem.
@@ -264,13 +264,13 @@ feature.setFlag('feature3',function(rule){
 });
 
 /*
-    api.isVisible('feature2') -> return true
-    api.isVisible('feature2','new') -> return false
-    api.isVisible('feature2','old') -> return true
-    api.isVisible('feature2','grumpfel') -> return true
+    api.isActive('feature2') -> return true
+    api.isActive('feature2','new') -> return false
+    api.isActive('feature2','old') -> return true
+    api.isActive('feature2','grumpfel') -> return true
 
-    api.isVisible('feature3','new') -> return false
-    api.isVisible('feature3','old') -> return false
+    api.isActive('feature3','new') -> return false
+    api.isActive('feature3','old') -> return false
 */
 ```
 You already want to initialize it in the constructor? No Problem.
@@ -280,20 +280,20 @@ You already want to initialize it in the constructor? No Problem.
  });
 ```
 
-#### Function isVisible
+#### Function isActive
 Example for this function:
 ```javascript
 // prooves if feature2 is visible
-var isVisible = feature.isVisible('feature2');
+var isActive = feature.isActive('feature2');
 
 // prooves if tag feature "feature2", variant "new" is visible
-var isVisible_new = feature.isVisible('feature2','new');
+var isActive_new = feature.isActive('feature2','new');
 
 // prooves if tag feature "feature2", variant "new" with data "grumpfl" is visible
-var isVisible_data = feature.isVisible('feature2','new','grumpfl');
+var isActive_data = feature.isActive('feature2','new','grumpfl');
 
 // prooves if tag feature "feature2" with data "grumpfl" is visible
-var isVisible_data_onlyname = feature.isVisible('feature2',null,'grumpfl');
+var isActive_data_onlyname = feature.isActive('feature2',null,'grumpfl');
 ```
 
 #### Function setData
@@ -409,7 +409,7 @@ Here's the way, how to add parameters to your plugin
 Imagine this following html-snippet:
 ```javascript
     /* Why is this ******* feature hidden? I checked the visibilityrule. It should be visible... */
-    api.isVisible('anamazingFeature') //returns false, but should return true... wtf???
+    api.isActive('anamazingFeature') //returns false, but should return true... wtf???
 ```
 All developers of the world agree with you, debugging sth like this is horrible. But don't worry, we have a perfect solution for it. And it's just one line of code.
 ```javascript
@@ -484,7 +484,7 @@ api.setFlag('name',function(rule){
 });
 ```
 
-### isVisible
+### isActive
 Prooves if a function is visible.
 
 Parameters:
@@ -497,9 +497,9 @@ Returns:
 
 ```javascript
 //possible parameters
-api.isVisible(name);
-api.isVisible(name,variant);
-api.isVisible(name,variant,data);
+api.isActive(name);
+api.isActive(name,variant);
+api.isActive(name,variant,data);
 ```
 
 ### on
