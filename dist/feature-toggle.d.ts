@@ -31,6 +31,7 @@ interface OnConfiguration {
     ignorePreviousRules: boolean;
 }
 type Plugin = (api: any) => void;
+type EventType = 'visibilityrule' | 'init' | 'registerEvent' | string;
 interface OnEvent {
     name: string;
     variant: string;
@@ -43,13 +44,24 @@ type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' |
     
 type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
 
+type FeatureFlag = boolean | ((rule: Rule) => boolean);
 interface FeatureToggleConfig {
-    [key: FeatureFlagKey]: boolean | (() => boolean);
+    [key: FeatureFlagKey]: FeatureFlag;
     $plugins?: Plugin[];
     /**
      * @deprecated Use key`$plugins` instead.
      */
     _plugins?: Plugin[];
+    /**
+     * This rule will always run before the main rule.
+     * If it returns false, the main rules will be skipped and false is returned
+     */
+    $required?: FeatureFlag;
+    /**
+     * This rule will always run after the main rule.
+     * If the main rule returns false, the result of the default rule will be taken.s
+     */
+    $default?: FeatureFlag;
 }
 interface Rule {
     name: string;
@@ -65,8 +77,8 @@ interface FeatureToggleApi {
     setData(nameParam: string, variantOrDataParam: string | {
         [key: string]: any;
     }, dataParam?: any): void;
-    on(eventType: string, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
-    trigger(eventtype: string, param?: any): any;
+    on(eventType: EventType, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
+    trigger(eventtype: EventType, param?: any): any;
     showLogs(showLogs?: boolean): void;
     /**
      * @deprecated Use `featureToggle.isActive` instead.

@@ -3,6 +3,7 @@ interface OnConfiguration {
 }
 type Plugin = (api) => void;
 
+type EventType = 'visibilityrule' | 'init' | 'registerEvent' | string;
 interface OnEvent {
     name: string,
     variant: string,
@@ -14,14 +15,26 @@ type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' |
     'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
     
 type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
-
+type FeatureFlag = boolean | ((rule:Rule) => boolean);
 interface FeatureToggleConfig {
-    [key: FeatureFlagKey]: boolean | (() => boolean),
+    [key: FeatureFlagKey]: FeatureFlag,
     $plugins?: Plugin[]
     /**
      * @deprecated Use key`$plugins` instead.
      */
     _plugins?: Plugin[]
+
+    /**
+     * This rule will always run before the main rule. 
+     * If it returns false, the main rules will be skipped and false is returned
+     */
+    $required?: FeatureFlag
+
+    /**
+     * This rule will always run after the main rule. 
+     * If the main rule returns false, the result of the default rule will be taken.s
+     */
+    $default?: FeatureFlag
 }
 
 interface Rule {
@@ -39,8 +52,8 @@ interface FeatureToggleApi {
     setData(nameParam: string, variantOrDataParam: string | { [key: string]: any },
         dataParam?: any): void;
 
-    on(eventType: string, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
-    trigger(eventtype: string, param?: any);
+    on(eventType: EventType, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
+    trigger(eventtype: EventType, param?: any);
     showLogs(showLogs?: boolean): void
 
     /**
@@ -135,7 +148,15 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
         usedPlugins: [],
     }
 
-    function init(api) {
+    function init(api: FeatureToggleApi) {
+        if(config.$default){
+            api.setDefaultFlag(config.$default);
+        }
+
+        if(config.$required){
+            api.setRequiredFlag(config.$required);
+        }
+
         const allPlugins = [...(config.$plugins||[]),...(config._plugins||[])];
         if(config._plugins){
             console.log('useFeatureToggle({_plugins:[]}): Key _plugins is deprecated. Use $plugins instead. This attribute will be removed in one of the next major versions.');
@@ -154,7 +175,7 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
         triggerEvent('init');
     }
 
-    function triggerEvent(eventtype: string, param?: any) {
+    function triggerEvent(eventtype: EventType, param?: any) {
         (globals.listeners[eventtype] || []).forEach(listener => {
             listener(param);
         });
@@ -354,7 +375,7 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
 
             triggerEvent('visibilityrule', event);
         },
-        on: function (eventtype: string, fn, config?) {
+        on(eventtype: EventType, fn, config?) {
             globals.listeners[eventtype] = globals.listeners[eventtype] || [];
             globals.listeners[eventtype].push(fn);
 

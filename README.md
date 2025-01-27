@@ -138,14 +138,16 @@ api.setFlag('feature4','new',false);
 api.setFlag('feature4','new',"some custom data",false);
 ```
 
-Important: A visibilityrule mustn't start with an underscore. Attributes starting with an underscore are reserved for configuration settings.
+Important: A visibilityrule must not start with an underscore or $. Both is reserved. Attributes starting with an it are reserved for configuration settings.
 ```javascript
 //This api has already initialized some visiblity rules:
 var api = useFeatureToggle({
     feature1: true,  //visibilityrule feature1 -> true
     plugins: true,   //visibilityrule plugins -> true
-    _feature1: true, //_ is reserved for configuration -> this attribute does nothing
-    _plugins: [],    //_ is reserved for configuration -> add plugins
+    _feature1: true, //_ is reserved for configuration (deprecated)-> this attribute does nothing
+    _plugins: [],    //_ is reserved for configuration -> add plugins (deprecated). use $plugins instead
+
+    $plugins: [],    //$ is reserved for configuration -> add plugins
 });
 ```
 

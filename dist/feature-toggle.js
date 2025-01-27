@@ -144,6 +144,12 @@ function useFeatureToggle(config = {}) {
         usedPlugins: [],
     };
     function init(api) {
+        if (config.$default) {
+            api.setDefaultFlag(config.$default);
+        }
+        if (config.$required) {
+            api.setRequiredFlag(config.$required);
+        }
         const allPlugins = [...(config.$plugins || []), ...(config._plugins || [])];
         if (config._plugins) {
             console.log('useFeatureToggle({_plugins:[]}): Key _plugins is deprecated. Use $plugins instead. This attribute will be removed in one of the next major versions.');
@@ -315,7 +321,7 @@ function useFeatureToggle(config = {}) {
             globals.datas[event.key] = event.data;
             triggerEvent('visibilityrule', event);
         },
-        on: function (eventtype, fn, config) {
+        on(eventtype, fn, config) {
             globals.listeners[eventtype] = globals.listeners[eventtype] || [];
             globals.listeners[eventtype].push(fn);
             triggerEvent('registerEvent', {

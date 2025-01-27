@@ -139,6 +139,16 @@ describe("Default Visibility", function() {
         const visibility = legacyApi.isActive('featureNotExists');
         assert.strictEqual(visibility,true);
     });
+    it("should return true if feature is passed by parameter", function() {
+        const apiByConstructor = useFeatureToggle({
+            $default:(result)=>{
+                return true;
+            }
+        });
+        const visibility = apiByConstructor.isActive('featureNotExists');
+        assert.strictEqual(visibility,true);
+    });
+
     it("should return true if feature does not exist", function() {
         const visibility = api.isActive('featureNotExists');
         assert.strictEqual(visibility,true);
@@ -194,6 +204,28 @@ describe("Required Flag", function() {
         api.setFlag('featureFalse', false);
         const visibility = api.isActive('featureFalse', 'valid');
         assert.strictEqual(visibility,false);
+    });
+
+    it("should return true if required rule is passed by the constructor", function() {
+        const apiByConstructor = useFeatureToggle({
+            $required:(result)=>{
+                return result.variant == "valid";
+            }
+        });
+        apiByConstructor.setFlag('featureTrue','valid',true);
+        const visibility = apiByConstructor.isActive('featureTrue', 'valid');
+        assert.strictEqual(visibility,true);
+    });
+
+    it("should return true if required rule and featureFlagis passed by the constructor", function() {
+        const apiByConstructor = useFeatureToggle({
+            "featureTrue:valid": true,
+            $required:(result)=>{
+                return result.variant == "valid";
+            }
+        });
+        const visibility = apiByConstructor.isActive('featureTrue', 'valid');
+        assert.strictEqual(visibility,true);
     });
 
     it("should return true if required rule matches and visibiltiyrule", function() {
