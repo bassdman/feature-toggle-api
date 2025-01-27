@@ -1,6 +1,6 @@
 {
   "name": "feature-toggle-api",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Gives you advanced feature-toggle for any Framework",
   "main": "dist/feature-toggle.js",
   "types": "dist/feature-toggle.d.ts",

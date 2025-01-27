@@ -30,7 +30,7 @@ declare function htmlPlugin(config?: HtmlPluginConfig): (api: any) => {
 interface OnConfiguration {
     ignorePreviousRules: boolean;
 }
-type Plugin = (api: any) => void;
+type Plugin = (api: any) => Partial<FeatureToggleApi>;
 type EventType = 'visibilityrule' | 'init' | 'registerEvent' | string;
 interface OnEvent {
     name: string;
@@ -43,6 +43,7 @@ type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' |
     'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
     
 type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
+
 
 type FeatureFlag = boolean | ((rule: Rule) => boolean);
 interface FeatureToggleConfig {
@@ -70,7 +71,7 @@ interface Rule {
     _internalCall?: true;
     description?: string;
 }
-interface FeatureToggleApi {
+interface FeatureToggleApiBase {
     name: string;
     setData(name: string, dataParam?: any): void;
     setData(name: string, variant: string, dataParam?: any): void;
@@ -127,6 +128,7 @@ interface FeatureToggleApi {
     setDefaultFlag(fn: boolean | ((result: Rule) => boolean)): void;
     addPlugin(plugin: Plugin): any;
 }
+type FeatureToggleApi = FeatureToggleApiBase & Record<string, any>;
 declare function useFeatureToggle(config?: FeatureToggleConfig): FeatureToggleApi;
 
 export { htmlPlugin, urlPlugin, useFeatureToggle };

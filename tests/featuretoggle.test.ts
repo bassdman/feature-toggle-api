@@ -339,7 +339,9 @@ describe("Plugins", function() {
 
     it("should be possible with legacy-key _plugins", function() {
         function newPlugin(api) {
-            api.newplugin = true;
+            return {
+                newplugin: true
+            }
         }
 
         var api = useFeatureToggle({
@@ -350,7 +352,10 @@ describe("Plugins", function() {
 
     it("should add attribute 'newplugin' to the api", function() {
         function newPlugin(api) {
-            api.newplugin = true;
+
+            return {
+                newplugin: true
+            }
         }
 
         var api = useFeatureToggle();
@@ -360,7 +365,9 @@ describe("Plugins", function() {
 
     it("should add plugins via attribute constructor config", function() {
         function newPlugin(api) {
-            api.newplugin = true;
+            return {
+                newplugin: true
+            }
         }
 
         var api = useFeatureToggle({ $plugins: [newPlugin] });
@@ -375,6 +382,7 @@ describe("Plugins", function() {
 
         function countPlugin(api) {
             api.count += 1;
+            return {}
         }
 
         api.addPlugin(countPlugin);
@@ -387,6 +395,9 @@ describe("Plugins", function() {
             api.on('init', function() {
                 api.initTriggered = true;
             })
+            return {
+                initTriggered: false
+            }
         }
 
         var api = useFeatureToggle({ $plugins: [newPlugin] });

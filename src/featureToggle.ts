@@ -1,7 +1,7 @@
 interface OnConfiguration {
     ignorePreviousRules: boolean
 }
-type Plugin = (api) => void;
+type Plugin = (api) => Partial<FeatureToggleApi>;
 
 type EventType = 'visibilityrule' | 'init' | 'registerEvent' | string;
 interface OnEvent {
@@ -45,7 +45,7 @@ interface Rule {
     description?: string
 }
 
-interface FeatureToggleApi {
+interface FeatureToggleApiBase {
     name: string,
     setData(name: string, dataParam?: any): void;
     setData(name: string, variant: string, dataParam?: any): void,
@@ -112,6 +112,8 @@ interface FeatureToggleApi {
     addPlugin(plugin: Plugin)
 }
 
+type FeatureToggleApi = FeatureToggleApiBase & Record<string, any>;
+
 function parseToFn(fnOrBool: boolean | ((param?: any) => boolean)) {
     if (typeof fnOrBool == 'boolean')
         return function () { return fnOrBool };
@@ -168,7 +170,7 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
                 if (typeof plugin !== 'function')
                     throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
 
-                plugin(api);
+                api.addPlugin(plugin);
             });
         }
 
@@ -447,7 +449,11 @@ function useFeatureToggle(config: FeatureToggleConfig = {}): FeatureToggleApi {
             if (globals.usedPlugins.includes(plugin))
                 return;
 
-            plugin(api);
+            const newPlugin = plugin(api);
+
+            for(let _key of Object.keys(newPlugin)){
+                api[_key] = newPlugin[_key];
+            }
 
             globals.usedPlugins.push(plugin);
         },

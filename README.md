@@ -374,7 +374,10 @@ Calling addPlugin() prevents you from from adding a plugin multiple times, so if
 ```javascript
     function customFunctionPlugin(api){
         //adds function customFunction to your api
-        api.customFunction = function(){console.log('custom function created')}
+
+        return {
+            customFunction(){console.log('custom function created')}
+        }
     }
     
     //1st option: via constructor
@@ -393,13 +396,15 @@ Here's the way, how to add parameters to your plugin
     {
         return function (api){
             //adds function customFunction to your api
-            api.customFunction = function(){console.log('Hello ' + param1)}
+            return {
+                customFunction = function(){console.log('Hello ' + param1)}
+            }
         }
     }
 
     //1st option: via constructor
     //Important: don't forget the _ in the property _plugins!!!
-    const api = useFeatureToggle({_plugins:[pluginWithParams('Peter')]});
+    const api = useFeatureToggle({$plugins:[pluginWithParams('Peter')]});
 
     //2nd option: via function
     api.addPlugin(pluginWithParams('Peter'));
@@ -449,8 +454,8 @@ var api = useFeatureToggle({
 })
 ```
 
-### Visibility
-Adds a visibility rule.
+### Flag
+Adds a Flag.
 
 Parameters:
  - name: name of the feature; required; type string

@@ -158,7 +158,7 @@ function useFeatureToggle(config = {}) {
             allPlugins.forEach(plugin => {
                 if (typeof plugin !== 'function')
                     throw new Error('featuretoggleapi()-constructor: config.plugins needs functions as entries, not ' + typeof plugin + '.');
-                plugin(api);
+                api.addPlugin(plugin);
             });
         }
         triggerEvent('init');
@@ -383,7 +383,10 @@ function useFeatureToggle(config = {}) {
         addPlugin: function (plugin) {
             if (globals.usedPlugins.includes(plugin))
                 return;
-            plugin(api);
+            const newPlugin = plugin(api);
+            for (let _key of Object.keys(newPlugin)) {
+                api[_key] = newPlugin[_key];
+            }
             globals.usedPlugins.push(plugin);
         },
     };
