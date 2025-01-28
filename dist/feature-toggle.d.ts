@@ -38,13 +38,8 @@ interface OnEvent {
     data: any;
     result?: boolean;
 }
-
-type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' |
-    'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
-    
+type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
 type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
-
-
 type FeatureFlag = boolean | ((rule: Rule) => boolean);
 interface FeatureToggleConfig {
     [key: FeatureFlagKey]: FeatureFlag;
@@ -129,6 +124,7 @@ interface FeatureToggleApiBase {
     addPlugin(plugin: Plugin): any;
 }
 type FeatureToggleApi = FeatureToggleApiBase & Record<string, any>;
+
 declare function useFeatureToggle(config?: FeatureToggleConfig): FeatureToggleApi;
 
-export { htmlPlugin, urlPlugin, useFeatureToggle };
+export { type EventType, type FeatureFlag, type FeatureFlagKey, type FeatureToggleApi, type FeatureToggleApiBase, type FeatureToggleConfig, type FirstCharOfFeatureFlagKey, type OnConfiguration, type OnEvent, htmlPlugin, urlPlugin, useFeatureToggle };
