@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "bassdman",
+        "projectKey": "bassdman_feature-toggle-api"
+    }
+}

@@ -1,12 +1,12 @@
 export interface OnConfiguration {
     ignorePreviousRules: boolean
 }
-export type Plugin = (api) => Partial<FeatureToggleApi>;
+export type Plugin = (api: FeatureToggleApi) => Partial<FeatureToggleApi>;
 
-export type EventType = 'visibilityrule' | 'init' | 'registerEvent' | string;
+export type EventType = 'visibilityrule' | 'init' | 'registerEvent' | (string & {});
 export interface OnEvent {
     name: string,
-    variant: string,
+    variant?: string,
     data: any,
     result?: boolean
 }
@@ -39,7 +39,7 @@ export interface FeatureToggleConfig {
 
 export interface Rule {
     name: string,
-    variant: string,
+    variant?: string,
     data: any,
     _internalCall?: true,
     description?: string
@@ -53,8 +53,8 @@ export interface FeatureToggleApiBase {
         dataParam?: any): void;
 
     on(eventType: EventType, fn: (event: OnEvent) => void, config?: OnConfiguration): void;
-    trigger(eventtype: EventType, param?: any);
-    showLogs(showLogs?: boolean): void
+    trigger(eventtype: EventType, param?: any): void;
+    showLogs(showLogs?: boolean): void;
 
     /**
      * @deprecated Use `featureToggle.isActive` instead.
@@ -78,12 +78,12 @@ export interface FeatureToggleApiBase {
     /**
      * @deprecated Use `featureToggle.setFlag` instead.
      */
-    visibility(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | (() => boolean)): void
+    visibility(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | ((rule: Rule) => boolean)): void
 
     setFlag(name: string, result: boolean | ((rule: Rule) => boolean)): void,
     setFlag(name: string, variant: string | null, result: boolean | ((rule: Rule) => boolean)): void,
     setFlag(name: string, variant: string | null, data: any, result: boolean | ((rule: Rule) => boolean)): void,
-    setFlag(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | (() => boolean)): void
+    setFlag(name: string, resultOrVariant: string | null | boolean | ((rule: Rule) => boolean), resultOrData?: any, result?: boolean | ((rule: Rule) => boolean)): void
 
     /**
      * @deprecated Use `featureToggle.setRequiredFlag` instead.
@@ -109,9 +109,7 @@ export interface FeatureToggleApiBase {
      */
     setDefaultFlag(fn: boolean | ((result: Rule) => boolean)): void
 
-    addPlugin(plugin: Plugin)
+    addPlugin(plugin: Plugin): void;
 }
 
 export type FeatureToggleApi = FeatureToggleApiBase & Record<string, any>;
-
-export function abc(){}

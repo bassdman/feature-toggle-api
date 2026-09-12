@@ -219,7 +219,7 @@ describe("Required Flag", function() {
 
     it("should return true if required rule and featureFlagis passed by the constructor", function() {
         const apiByConstructor = useFeatureToggle({
-            "featureTrue:valid": true,
+            "featureTrue#valid": true,
             $required:(result)=>{
                 return result.variant == "valid";
             }
