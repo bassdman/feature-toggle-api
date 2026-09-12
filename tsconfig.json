@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "emitDeclarationOnly": false,     // Nur Deklarationen ausgeben (false, damit auch JS kompiliert wird)
-    "outDir": "dist", // Ausgabeort für die Typen
-    "module": "ESNext", // Oder das Modulformat deiner Wahl
-    "target": "ESNext",
-    "moduleResolution": "bundler"
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmit": true
   },
-    "include": ["src/**/*.ts"],  // Eingeschlossene Dateien
-    "exclude": ["node_modules"]  ,
-      
-  }
+  "include": ["src/**/*.ts", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

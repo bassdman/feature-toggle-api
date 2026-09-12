@@ -1,7 +1,7 @@
 import { describe, it, } from "node:test";
 import assert from "node:assert";
 import {useWindowMock} from './polyfills';
-import { useFeatureToggle, urlPlugin } from '../src/';
+import { useFeatureToggle, urlPlugin } from 'feature-toggle-api';
 
 describe("Initialisation / Basic Tests", function() {
     it("should return a function", function() {

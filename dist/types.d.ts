@@ -1,47 +1,18 @@
-interface URLPluginConfig {
-    useMockedWindow?: boolean;
-    url?: string;
-    prefix?: string;
-}
-declare global {
-    interface Window {
-        isMocked: boolean;
-    }
-}
-declare function urlPlugin(config?: URLPluginConfig): (api: any) => {
-    name: string;
-};
-
-type Display = 'block' | 'inline-block' | 'inline' | 'flex' | 'inline-flex' | 'grid' | 'inline-grid';
-interface HtmlPluginConfig {
-    renderedTag?: string;
-    featureTagName?: string;
-    tagAttributeName?: string;
-    nameAttributeName?: string;
-    variantAttributeName?: string;
-    dataAttributeName?: string;
-    displayAttributeName?: string;
-    defaultDisplay?: Display;
-}
-declare function htmlPlugin(config?: HtmlPluginConfig): (api: any) => {
-    name: string;
-};
-
-interface OnConfiguration {
+export interface OnConfiguration {
     ignorePreviousRules: boolean;
 }
-type Plugin = (api: FeatureToggleApi) => Partial<FeatureToggleApi>;
-type EventType = 'visibilityrule' | 'init' | 'registerEvent' | (string & {});
-interface OnEvent {
+export type Plugin = (api: FeatureToggleApi) => Partial<FeatureToggleApi>;
+export type EventType = 'visibilityrule' | 'init' | 'registerEvent' | (string & {});
+export interface OnEvent {
     name: string;
     variant?: string;
     data: any;
     result?: boolean;
 }
-type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
-type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
-type FeatureFlag = boolean | ((rule: Rule) => boolean);
-interface FeatureToggleConfig {
+export type FirstCharOfFeatureFlagKey = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
+export type FeatureFlagKey = `${FirstCharOfFeatureFlagKey}${string}`;
+export type FeatureFlag = boolean | ((rule: Rule) => boolean);
+export interface FeatureToggleConfig {
     [key: FeatureFlagKey]: FeatureFlag;
     $plugins?: Plugin[];
     /**
@@ -59,14 +30,14 @@ interface FeatureToggleConfig {
      */
     $default?: FeatureFlag;
 }
-interface Rule {
+export interface Rule {
     name: string;
     variant?: string;
     data: any;
     _internalCall?: true;
     description?: string;
 }
-interface FeatureToggleApiBase {
+export interface FeatureToggleApiBase {
     name: string;
     setData(name: string, dataParam?: any): void;
     setData(name: string, variant: string, dataParam?: any): void;
@@ -123,8 +94,4 @@ interface FeatureToggleApiBase {
     setDefaultFlag(fn: boolean | ((result: Rule) => boolean)): void;
     addPlugin(plugin: Plugin): void;
 }
-type FeatureToggleApi = FeatureToggleApiBase & Record<string, any>;
-
-declare function useFeatureToggle(config?: FeatureToggleConfig): FeatureToggleApi;
-
-export { type EventType, type FeatureFlag, type FeatureFlagKey, type FeatureToggleApi, type FeatureToggleApiBase, type FeatureToggleConfig, type FirstCharOfFeatureFlagKey, type OnConfiguration, type OnEvent, htmlPlugin, urlPlugin, useFeatureToggle };
+export type FeatureToggleApi = FeatureToggleApiBase & Record<string, any>;

@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Basic Feature-Toggle-API-Test</title>
-    <script src="../dist/feature-toggle.umd.min.js"></script>
 </head>
 <body>
     <div class="feature1" style="border:1px solid lightgray;padding:1em;margin:1em;">This is text from feature1</div>
     <div class="feature2" style="border:1px solid lightgray;padding:1em;margin:1em;">This is text from feature2</div>
-    <script>
-        //useFeatureToggle is a global defined by the script
-        var api = useFeatureToggle({
+    <script type="module">
+        import { useFeatureToggle } from '../dist/feature-toggle.js';
+
+        const api = useFeatureToggle({
             feature1: true
         });
-        var feature1Visible = api.isVisible('feature1');
-        var feature2Visible = api.isVisible('feature2');
+        const feature1Visible = api.isActive('feature1');
+        const feature2Visible = api.isActive('feature2');
         
         //here we could also use jquery,...
         if(!feature1Visible) document.querySelector(".feature1").style.display = 'none';

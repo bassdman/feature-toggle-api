@@ -72,38 +72,36 @@ console.log(feature.isActive('a')); //true
 console.log(feature.isActive('c')); //false
 ```
 
-You use commonjs-scripts? Here we go:
+### Upgrade note for version 5
+
+Version 5 keeps the feature-toggle API unchanged, but only ships ESM builds.
+The CommonJS entry points and generated `.cjs` files are no longer included.
+Projects using `require("feature-toggle-api")` must migrate to an ESM import:
+
 ``` javascript
-const { useFeatureToggle } = require("feature-toggle-api/dist/feature-toggle.cjs");
-
-//initialize it with your feature-flags
-const feature = useFeatureToggle({      
-    a:true, 
-});
-
-console.log(feature.isActive('a')); //true
-console.log(feature.isActive('c')); //false
+import { useFeatureToggle } from "feature-toggle-api";
 ```
 
 
-Or you want to include it as a scripttag? Here's a sample HTML-File. 
+For browser applications, import the ESM build through your bundler or a module script.
 ``` html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Basic Feature-Toggle-API-Test</title>
-    <script src="path/to/feature-toggle-api/dist/feature-toggle.umd.min.js"></script>
 </head>
 <body>
     <div class="feature1">This is text from feature1</div>
     <div class="feature2">This is text from feature2</div>
-    <script>
-        var api = useFeatureToggle({
+    <script type="module">
+        import { useFeatureToggle } from "./node_modules/feature-toggle-api/dist/feature-toggle.js";
+
+        const api = useFeatureToggle({
             feature1: true
         });
-        var feature1Visible = api.isActive('feature1');
-        var feature2Visible = api.isActive('feature2');
+        const feature1Visible = api.isActive('feature1');
+        const feature2Visible = api.isActive('feature2');
         
         //here we could also use jquery or any other library,... The api has done its job.
         if(!feature1Visible) document.querySelector(".feature1").style.display = 'none';
@@ -640,4 +638,4 @@ api.showLogs(true);
 
 ## License	
 <a href="https://opensource.org/licenses/MIT">MIT</a>.
-Copyright (c) 2018 Manuel Gelsen
+Copyright (c) 2026 Manuel Gelsen

@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Listener Feature-Toggle-API-Test</title>
-    <script src="../dist/feature-toggle.umd.min.js"></script>
 </head>
 <body>
         <div class="feature1" style="border:1px solid lightgray;padding:1em;margin:1em;">This is text from feature1</div>
         <div class="feature2" style="border:1px solid lightgray;padding:1em;margin:1em;">This is text from feature2</div>
-        <script>
-            var api = featuretoggleapi({
+        <script type="module">
+            import { useFeatureToggle } from '../dist/feature-toggle.js';
+
+            const api = useFeatureToggle({
                 feature1: true
             });
             api.on('visibilityrule', function (rule) {
-                var featureVisible = api.isVisible(rule.name);
+                const featureVisible = api.isActive(rule.name);
                 if(!featureVisible) document.querySelector("."+rule.name).style.display = 'none';
             });
         </script>

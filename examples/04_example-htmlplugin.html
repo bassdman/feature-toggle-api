@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>HTML-Plugin Test</title>
-    <script src="../dist/feature-toggle.umd.min.js"></script>
-    <script src="../dist/html-plugin.umd.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -20,14 +18,17 @@
         <feature name="feature3" variant="old" data='["a",2]'>This "Feature3" with variant "old" has some Data.</feature>
         <feature name="feature3" variant="new" data='{"text":"grumpfel"}'>This "Feature3" with variant "old" has some Data. </feature>
     </div>
-        <script>
-            var api = featuretoggleapi({
+        <script type="module">
+            import { useFeatureToggle } from '../dist/feature-toggle.js';
+            import { htmlPlugin } from '../dist/html-plugin.js';
+
+            const api = useFeatureToggle({
                 "feature2#new": true,
                 "feature2#grumpfel": true,
                 "featureh1": true,
-                _plugins: [htmlplugin()]
+                $plugins: [htmlPlugin()]
             });
-            api.visibility("feature3",function(rule){
+            api.setFlag("feature3", function(rule){
                 return rule.data.text == 'grumpfel';
             })
         </script>

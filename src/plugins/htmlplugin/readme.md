@@ -10,8 +10,10 @@ Watch the [example](https://github.com/bassdman/feature-toggle-api/blob/master/e
 <html lang="en">
 <head>
     <title>HTML-Plugin Minimal example</title>
-    <script src="../../../feature-toggle-api.min.js"></script>
-    <script src="../../../plugin-html.js"></script>
+    <script type="module">
+        import { useFeatureToggle } from 'feature-toggle-api';
+        import { htmlPlugin } from 'feature-toggle-api/html-plugin';
+    </script>
 </head>
 <body>
     <!-- The name property is required -->
